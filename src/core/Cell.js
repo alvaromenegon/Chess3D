@@ -1,3 +1,4 @@
+
 // ECMAScript 5 strict mode
 /* jshint globalstrict: true*/
 /* global THREE,BOARD_SIZE, COLS,ROWS*/

@@ -18,36 +18,37 @@ var textures   = {};
 		var loaded = 0;
 		// list of all mesh and texture
 		var resources = [
-			'3D/json/knight.json',
-			'3D/json/king.json',
-			'3D/json/queen.json',
-			'3D/json/bishop.json',
-			'3D/json/rook.json',
-			'3D/json/pawn.json',
-			'3D/json/board.json',
-			'3D/json/innerBoard.json',
-			'texture/wood-0.jpg',
-			'texture/wood-1.jpg',
-			'texture/wood_N.jpg',
-			'texture/wood_S.jpg',
-			'texture/knight-ao.jpg',
-			'texture/rook-ao.jpg',
-			'texture/king-ao.jpg',
-			'texture/bishop-ao.jpg',
-			'texture/queen-ao.jpg',
-			'texture/pawn-ao.jpg',
-			'texture/floor.jpg',
-			'texture/floor_N.jpg',
-			'texture/floor_S.jpg',
-			'texture/fakeShadow.jpg'
+			'static/3D/json/knight.json',
+			'static/3D/json/king.json',
+			'static/3D/json/queen.json',
+			'static/3D/json/bishop.json',
+			'static/3D/json/rook.json',
+			'static/3D/json/pawn.json',
+			'static/3D/json/board.json',
+			'static/3D/json/innerBoard.json',
+			'static/texture/wood-0.jpg',
+			'static/texture/wood-1.jpg',
+			'static/texture/wood_N.jpg',
+			'static/texture/wood_S.jpg',
+			'static/texture/knight-ao.jpg',
+			'static/texture/rook-ao.jpg',
+			'static/texture/king-ao.jpg',
+			'static/texture/bishop-ao.jpg',
+			'static/texture/queen-ao.jpg',
+			'static/texture/pawn-ao.jpg',
+			'static/texture/floor.jpg',
+			'static/texture/floor_N.jpg',
+			'static/texture/floor_S.jpg',
+			'static/texture/fakeShadow.jpg'
 		];
 
 		// for loading mesh
 		function loadJSON (url) {
 			var loader = new THREE.JSONLoader();
 			loader.load(url, function(geometry) {
-
-				geometries[url] = geometry;
+				const urlWithoutStatic = url.replace('static/',''); //Remover o static apenas ao salvar no objeto
+				//  para compatibilidade com a utilização dos recursos depois e evitar mudar no código todo
+				geometries[urlWithoutStatic] = geometry;
 
 				loaded++;
 				checkLoad();
@@ -56,11 +57,12 @@ var textures   = {};
 
 		// for loading texture
 		function loadImage(url) {
+			const urlWithoutStatic = url.replace('static/',''); //Remover o static apenas ao salvar no objeto
 			THREE.ImageUtils.loadTexture(
 				url,
 				THREE.UVMapping(),
 				function(texture) {
-					textures[url] = texture;
+					textures[urlWithoutStatic] = texture;
 					loaded++;
 					checkLoad();
 				}

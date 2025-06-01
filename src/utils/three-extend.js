@@ -7,7 +7,7 @@
  * often to avoid some repetitive tasks
  */
 
-"use strict";
+// "use strict";
 (function () {
 	var clone = THREE.Texture.prototype.clone;
 	THREE.Texture.prototype.clone = function( texture ) {
@@ -25,3 +25,17 @@
 		this.repeat.set(factor,factor);
 	};
 })();
+//Modificado para funções globais
+function clone(texture){    
+    console.log("clone texture", texture);
+    return texture;
+    // var newTexture = texture.clone();
+    // newTexture.needsUpdate = true;
+    // return newTexture;
+}
+
+function tile(texture, factor) {
+    // because I do that a lot (:
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(factor, factor);
+}
