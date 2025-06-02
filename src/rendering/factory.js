@@ -38,9 +38,9 @@ function initPieceFactory() {
 	function createPiece(name, color) {
 		var size = BOARD_SIZE / COLS * PIECE_SIZE;
 		// container for the piece and its reflexion
-		var piece = new THREE176.Object3D();
+		var piece = new THREE.Object3D();
 		// base material for all the piece (only lightmap changes)
-		var material = new THREE176.MeshPhongMaterial({
+		var material = new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			specular: 0xaaaaaa,
 			shininess: 60.0,
@@ -137,10 +137,11 @@ function initCellFactory() {
 		var randU = Math.random();
 		var randV = Math.random();
 
-		var uvs = geo.faceVertexUvs[0][0];
-		for (var j = 0; j < uvs.length; j++) {
-			uvs[j].x += randU;
-			uvs[j].y += randV;
+		const uvAttribute = geo.getAttribute('uv');
+		var uv = new THREE.Vector2();
+		for (let i = 0; i < uvAttribute.count; i++) {
+			uv.fromBufferAttribute(uvAttribute, i);
+			uvAttribute.setXY(i, uv.x += randU, uv.y += randV);
 		}
 
 		var cell = new THREE.Mesh(geo, materials[color]);
@@ -168,26 +169,16 @@ function createChessBoard(size) {
 	var square, cell;
 
 	for (var i = 0; i < ROWS * COLS; i++) {
-
-		var col = i % COLS;
 		var row = Math.floor(i / COLS);
-
 		cell = new Cell(i);
 		square = createCell(cellSize, 1 - (i + row) % 2);
-		square.position = cell.getWorldPosition();
+		square.position.copy(cell.getWorldPosition());
 		square.name = cell.position;
 
 		lChessBoard.add(square);
 	}
 
 	// some fake inner environment color for reflexion
-
-	// var innerBoard = new THREE176.Mesh(
-	// 	geometries['3D/glb/innerBoard.glb'],
-	// 	new THREE.MeshBasicMaterial({
-	// 		color:0x783e12
-	// 	})
-	// );
 	var innerBoard = geometries['meshes/innerBoard'].clone();
 	innerBoard.material = new THREE.MeshBasicMaterial({
 		color: 0x783e12
@@ -205,14 +196,14 @@ function createChessBoard(size) {
 	// geo.computeBoundingBox();
 	var board = geometries['meshes/board'].clone();
 	board.material =
-		new THREE176.MeshPhongMaterial({
+		new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			map: wood,
 			specular: 0xffffff,
 			specularMap: spec,
 			normalMap: norm,
 			shininess: 60,
-			normalScale: new THREE176.Vector2(0.2, 0.2)
+			normalScale: new THREE.Vector2(0.2, 0.2)
 		});
 	var hCorrection = 0.62; // yeah I should just create a better geometry
 	board.scale.set(size, size * hCorrection, size);
@@ -237,7 +228,7 @@ function createFloor(size, chessboardSize) {
 
 	// material
 	var tiling = 30 * size / 1000;
-	var material = new THREE176.MeshPhongMaterial({
+	var material = new THREE.MeshPhongMaterial({
 		color: 0xffffff,
 		wireframe: WIREFRAME,
 		specular: 0xaaaaaa,
@@ -252,7 +243,7 @@ function createFloor(size, chessboardSize) {
 	tileTextureAndRepeat(diff, tiling);
 	tileTextureAndRepeat(spec, tiling);
 	tileTextureAndRepeat(norm, tiling);
-	light.format = THREE176.RGBFormat;
+	light.format = THREE.RGBFormat;
 
 	material.map = diff;
 	material.normalMap = norm;
@@ -264,7 +255,7 @@ function createFloor(size, chessboardSize) {
 	var halfBoard = chessboardSize / 2;
 	var halfSize = size / 2;
 
-	var floorGeo = new THREE176.BufferGeometry();
+	var floorGeo = new THREE.BufferGeometry();
 
 	//adaptação para BufferGeometry
 	const positions = new Float32Array([
@@ -316,14 +307,14 @@ function createFloor(size, chessboardSize) {
 		0.8, 0.8, 0.2, 0.8, 0.2, 0.2, 0.8, 0.2
 	];
 
-	floorGeo.setAttribute('position', new THREE176.Float32BufferAttribute(positions, 3));
-	floorGeo.setAttribute('normal', new THREE176.Float32BufferAttribute(normals, 3));
-	floorGeo.setAttribute('uv', new THREE176.Float32BufferAttribute(uvs1, 2));
-	floorGeo.setAttribute('uv2', new THREE176.Float32BufferAttribute(uvs2, 2));
+	floorGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+	floorGeo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+	floorGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs1, 2));
+	floorGeo.setAttribute('uv2', new THREE.Float32BufferAttribute(uvs2, 2));
 	floorGeo.setIndex(indices);
-	var floor = new THREE176.Mesh(floorGeo, material);
+	var floor = new THREE.Mesh(floorGeo, material);
 
-	var floor = new THREE176.Mesh(floorGeo, material);
+	var floor = new THREE.Mesh(floorGeo, material);
 
 	if (SHADOW) {
 		floor.receiveShadow = true;
@@ -338,20 +329,12 @@ var validCellMaterial = null;
 function createValidCellMaterial() {
 	validCellMaterial = [];
 	var tiling = 2;
-
-
 	// common textures
-	var diff;
-	// var norm = textures['texture/wood_N.jpg'].clone();
-	// norm.tile(tiling);
-	// var spec = textures['texture/wood_S.jpg'].clone();
-	// spec.tile(tiling);
+	var diff;	
 	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
 	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
 
 	for (var c = 0; c < 2; c++) {
-		// diff = textures['texture/wood-1.jpg'].clone();
-		// diff.tile(tiling);
 		var diff = cloneAndTileTexture(textures['texture/wood-1.jpg'], tiling);
 
 		//common material
