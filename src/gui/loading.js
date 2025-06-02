@@ -5,27 +5,33 @@
 "use strict";
 
 var geometries = {};
-var textures   = {};
+var textures = {};
 
-
-(function() {
-
-	var $bar,$tips;
+(function () {
+	var $bar, $tips;
 	var glow;
 
-	function loadResources () {
+	function loadResources() {
 		// counter
 		var loaded = 0;
 		// list of all mesh and texture
 		var resources = [
-			'static/3D/json/knight.json',
-			'static/3D/json/king.json',
-			'static/3D/json/queen.json',
-			'static/3D/json/bishop.json',
-			'static/3D/json/rook.json',
-			'static/3D/json/pawn.json',
-			'static/3D/json/board.json',
-			'static/3D/json/innerBoard.json',
+			// 'static/3D/json/knight.json',
+			// 'static/3D/json/king.json',
+			// 'static/3D/json/queen.json',
+			// 'static/3D/json/bishop.json',
+			// 'static/3D/json/rook.json',
+			// 'static/3D/json/pawn.json',
+			// 'static/3D/json/board.json',
+			// 'static/3D/json/innerBoard.json',
+			'static/3D/glb/knight.glb',
+			'static/3D/glb/king.glb',
+			'static/3D/glb/queen.glb',
+			'static/3D/glb/bishop.glb',
+			'static/3D/glb/rook.glb',
+			'static/3D/glb/pawn.glb',
+			'static/3D/glb/board.glb',
+			'static/3D/glb/innerBoard.glb',
 			'static/texture/wood-0.jpg',
 			'static/texture/wood-1.jpg',
 			'static/texture/wood_N.jpg',
@@ -42,11 +48,37 @@ var textures   = {};
 			'static/texture/fakeShadow.jpg'
 		];
 
+		/**
+		 * A versão atualizada do THREE.js não suporta mais o THREE.JSONLoader
+		 * Então, em vez disso, vamos usar o GLTFLoader para carregar os modelos 3D,
+		 * e armazenar a geometria carregada no objeto `geometries`.
+		 * A mesh poderia ser utilizada diretamente, mas para compatibilidade com o código existente,
+		 * vamos manter a estrutura de geometries.
+		 * @see https://threejs.org/docs/index.html#examples/en/loaders/GLTFLoader
+		 * @param {*} url caminho do arquivo a ser carregado
+		 */
+		//TODO: Armazenar as meshes em vez de geometries
+		function loadGeomety(url) {
+			const name = url.replace('static/', '');
+			const loader = new window.GLTFLoader();
+			loader.load(url, function (gltf) {
+				// gltf.scene.children[0] is the mesh
+				const geometry = gltf.scene.children[0].geometry;
+				geometries[name] = geometry;
+				loaded++;
+				checkLoad();
+			}, undefined, function (error) {
+				console.error('An error happened while loading', url, error);
+			});
+
+		}
+
 		// for loading mesh
-		function loadJSON (url) {
+
+		function loadJSON(url) {
 			var loader = new THREE.JSONLoader();
-			loader.load(url, function(geometry) {
-				const urlWithoutStatic = url.replace('static/',''); //Remover o static apenas ao salvar no objeto
+			loader.load(url, function (geometry) {
+				const urlWithoutStatic = url.replace('static/', ''); //Remover o static apenas ao salvar no objeto
 				//  para compatibilidade com a utilização dos recursos depois e evitar mudar no código todo
 				geometries[urlWithoutStatic] = geometry;
 
@@ -57,38 +89,50 @@ var textures   = {};
 
 		// for loading texture
 		function loadImage(url) {
-			const urlWithoutStatic = url.replace('static/',''); //Remover o static apenas ao salvar no objeto
-			THREE.ImageUtils.loadTexture(
-				url,
-				THREE.UVMapping(),
-				function(texture) {
+			const urlWithoutStatic = url.replace('static/', ''); //Remover o static apenas ao salvar no objeto
+			new window.THREE176.TextureLoader().load(url,
+				(texture) => {
+					// store the texture in the textures object
 					textures[urlWithoutStatic] = texture;
 					loaded++;
 					checkLoad();
-				}
-			);
+				}, undefined, function (error) {
+					console.error('An error happened while loading', url, error);
+				});
+			// THREE.ImageUtils.loadTexture(
+			// 	url,
+			// 	THREE.UVMapping(),
+			// 	function (texture) {
+			// 		textures[urlWithoutStatic] = texture;
+			// 		loaded++;
+			// 		checkLoad();
+			// 	}
+			// );
 		}
 
 		// load all the resources from the list
-		resources.forEach(function(url) {
-			switch ( url.split('.').pop() ) {
-			case 'json' :
-				loadJSON(url);
-				break;
-			case 'jpg' :
-				loadImage(url);
-				break;
-			default:
-				throw 'invalid resource';
+		resources.forEach(function (url) {
+			switch (url.split('.').pop()) {
+				case 'glb':
+					loadGeomety(url);
+					break;
+				// case 'json' :
+				// 	loadJSON(url);
+				// 	break;
+				case 'jpg':
+					loadImage(url);
+					break;
+				default:
+					throw 'invalid resource';
 			}
 		});
 
 		// control the progressBar
 		// and fire the onLoaded call back on completion
-		function checkLoad () {
-			$bar.update(loaded/resources.length);
+		function checkLoad() {
+			$bar.update(loaded / resources.length);
 			if (loaded === resources.length) {
-				setTimeout(onLoaded,0.1);
+				setTimeout(onLoaded, 0.1);
 			}
 		}
 
@@ -96,16 +140,16 @@ var textures   = {};
 
 	function initGlow() {
 		// create and set the green glow in the background
-		var size = window.innerWidth*LOADING_BAR_SCALE*1.8;
+		var size = window.innerWidth * LOADING_BAR_SCALE * 1.8;
 		glow = document.createElement('canvas');
-		glow.width  = size;
+		glow.width = size;
 		glow.height = size;
 		document.body.appendChild(glow);
 		var ctx = glow.getContext('2d');
 
 		// make it oval
 		glow.style.width = size + "px";
-		glow.style.height = Math.round(size/2) + "px";
+		glow.style.height = Math.round(size / 2) + "px";
 
 
 		var requestId;
@@ -117,39 +161,39 @@ var textures   = {};
 
 		function update(dt) {
 
-			ctx.clearRect(0,0,size,size);
+			ctx.clearRect(0, 0, size, size);
 
 			// for the pulse effect
-			var cycle = Math.cos(Date.now()/1000 * Math.PI);
-			var maxRadius = size/2.5;
+			var cycle = Math.cos(Date.now() / 1000 * Math.PI);
+			var maxRadius = size / 2.5;
 
-			function lerp(a,b,p) {
-				return a + (b-a)*p;
+			function lerp(a, b, p) {
+				return a + (b - a) * p;
 			}
 
 			var amplitude = maxRadius * 0.015;
-			var sizeOffset = cycle*amplitude;
+			var sizeOffset = cycle * amplitude;
 			var radius = maxRadius - amplitude + sizeOffset;
-			var saturation = lerp(70,100,(cycle+1)/2);
+			var saturation = lerp(70, 100, (cycle + 1) / 2);
 
 
-			var grd = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, radius);
+			var grd = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, radius);
 			// fake a non linear gradient
-			grd.addColorStop(0,    'hsla(90,'+saturation+'%,50%,0.5)');
-			grd.addColorStop(0.125,'hsla(90,'+saturation+'%,50%,0.3828125)');
-			grd.addColorStop(0.25, 'hsla(90,'+saturation+'%,50%,0.28125)');
-			grd.addColorStop(0.375,'hsla(90,'+saturation+'%,50%,0.1953125)');
-			grd.addColorStop(0.5,  'hsla(90,'+saturation+'%,50%,0.125)');
-			grd.addColorStop(0.75, 'hsla(90,'+saturation+'%,50%,0.03125)');
-			grd.addColorStop(1,    'hsla(90,'+saturation+'%,50%,0.0)');
+			grd.addColorStop(0, 'hsla(90,' + saturation + '%,50%,0.5)');
+			grd.addColorStop(0.125, 'hsla(90,' + saturation + '%,50%,0.3828125)');
+			grd.addColorStop(0.25, 'hsla(90,' + saturation + '%,50%,0.28125)');
+			grd.addColorStop(0.375, 'hsla(90,' + saturation + '%,50%,0.1953125)');
+			grd.addColorStop(0.5, 'hsla(90,' + saturation + '%,50%,0.125)');
+			grd.addColorStop(0.75, 'hsla(90,' + saturation + '%,50%,0.03125)');
+			grd.addColorStop(1, 'hsla(90,' + saturation + '%,50%,0.0)');
 
 			// draw the gradient
-			ctx.rect(0,0,size,size);
+			ctx.rect(0, 0, size, size);
 			ctx.fillStyle = grd;
 			ctx.fill();
 		}
 
-		glow.remove = function() {
+		glow.remove = function () {
 			window.cancelAnimationFrame(requestId);
 			this.parentNode.removeChild(this);
 		};
@@ -160,7 +204,7 @@ var textures   = {};
 			if (oldTime === undefined) {
 				oldTime = now;
 			}
-			var delta = (now - oldTime)/1000;
+			var delta = (now - oldTime) / 1000;
 			oldTime = now;
 			return delta;
 		}
@@ -197,30 +241,30 @@ var textures   = {};
 
 		//jQuery object for tips
 		$tips = $('<div>')
-			.attr("id","tips")
-			.css("color","white")
+			.attr("id", "tips")
+			.css("color", "white")
 			.appendTo($('body'));
 
 		// how often tips changes (in ms)
 		var tipTiming = 5000;
 
 
-		$tips.update = function() {
+		$tips.update = function () {
 			var self = this;
-			if( tips.length > 0 ) {
+			if (tips.length > 0) {
 				var index = Math.floor(Math.random() * tips.length);
 
 				var sentence = tips[index];
-				tips.splice(index,1);
-				$(this).text(sentence+"...");
+				tips.splice(index, 1);
+				$(this).text(sentence + "...");
 			}
-			this.timer = setTimeout(function(){self.update();},tipTiming);
+			this.timer = setTimeout(function () { self.update(); }, tipTiming);
 		};
 
 		// this little ugliness is just to clear the timer
 		// automagically on .remove()
 		var tipsRemove = $tips.remove;
-		$tips.remove = function() {
+		$tips.remove = function () {
 			clearTimeout(this.timer);
 			tipsRemove.call(this);
 		};
@@ -231,19 +275,19 @@ var textures   = {};
 	function initBar() {
 		// jQuery progress bar
 		$bar = $('<div>')
-			.attr("id","progressbar")
-			.css("width",(LOADING_BAR_SCALE*100)+"%")
+			.attr("id", "progressbar")
+			.css("width", (LOADING_BAR_SCALE * 100) + "%")
 			.appendTo($('body'));
 
 		// jQuery progress bar label
 		var $label = $('<div>')
-			.attr("id","progress-label")
+			.attr("id", "progress-label")
 			.appendTo($bar);
 
 		// setting up the progressbar
 		$bar.progressbar({
-			value:false,
-			change: function() {
+			value: false,
+			change: function () {
 				$label.text($bar.progressbar("value") + "%");
 			}
 		});
@@ -255,9 +299,9 @@ var textures   = {};
 
 
 		// that's where the progression happens
-		$bar.update = function(p) {
-			p = Math.round(p*100);
-			$bar.progressbar( "value", p );
+		$bar.update = function (p) {
+			p = Math.round(p * 100);
+			$bar.progressbar("value", p);
 			// somehow need to constantly remove it
 			$bar.children().removeClass('ui-corner-right');
 		};
@@ -268,29 +312,29 @@ var textures   = {};
 
 	function centering() {
 		$bar.position({
-			of:window,
-			my:"center center",
-			at:"center center"
+			of: window,
+			my: "center center",
+			at: "center center"
 		});
 		$tips.position({
-			of:$bar,
-			my:"center bottom",
-			at:"center top-10"
+			of: $bar,
+			my: "center bottom",
+			at: "center top-10"
 		});
 		$(glow).position({
-			of:window,
-			my:"center center",
-			at:"center center"
+			of: window,
+			my: "center center",
+			at: "center center"
 		});
 
-		window.addEventListener('resize',centering );
+		window.addEventListener('resize', centering);
 	}
 
 	function removeLoader() {
 		$bar.remove();
 		$tips.remove();
 		glow.remove();
-		window.removeEventListener('resize',centering );
+		window.removeEventListener('resize', centering);
 
 	}
 
