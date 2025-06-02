@@ -53,15 +53,16 @@ function initPieceFactory() {
 		// urls of geometry and lightmap
 		// var urlGeo = '3D/glb/'+name+'.glb';
 		var urlMesh = 'meshes/' + name;
-		var urlAO = 'texture/' + name + '-ao.jpg';
+		// var urlAO = 'texture/' + name + '-ao.jpg';
 
 		var mesh = geometries[urlMesh].clone();
 		// no need to clone this texture
 		// since its pretty specific
-		var light = textures[urlAO];
-		light.format = THREE.LuminanceFormat;
+		// não funciona mais com a versão atualizada do THREE.js
+		// var light = textures[urlAO];
+		// light.format = THREE.LuminanceFormat;
 
-		material.lightMap = light;
+		// material.lightMap = light;
 		mesh.material = material;
 
 		// var mesh  = new THREE.Mesh(geo,material);
