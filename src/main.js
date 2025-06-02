@@ -11,7 +11,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 console.log("THREE.js old version:", window.THREE.REVISION);
 console.log("THREE new version:", THREE.REVISION);
-window.THREE176 = THREE; // Manter assim por enquanto para não quebrar o código existente
-window.OrbitAndPanControls = OrbitControls; // Manter o nome antigo para compatibilidade
+window.THREE = THREE; // Manter assim por enquanto para não quebrar o código existente
 window.OrbitControls = OrbitControls; // E salvar o novo nome também para poder atualizar o código no futuro aos poucos
 window.GLTFLoader = GLTFLoader;

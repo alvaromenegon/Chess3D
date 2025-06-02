@@ -71,7 +71,7 @@ var levels = [
 	function initializeCamera(canvasRatio) {
 		camera = new THREE.PerspectiveCamera(45, canvasRatio, 1, 40000);
 		// CONTROLS
-		cameraControls = new THREE.OrbitAndPanControls(camera, renderer.domElement);
+		cameraControls = new OrbitControls(camera, renderer.domElement);
 
 		// limitations
 		cameraControls.minPolarAngle = 0;
@@ -88,7 +88,7 @@ var levels = [
 	}
 
 	function initializeSceneLights() {
-		var spotlight = new THREE.SpotLight(0xFFFFFF, 1.0);
+		var spotlight = new THREE.SpotLight(0xFFFFFF, 100000.0);
 		spotlight.position.set(0, 300, 0);
 		spotlight.angle = Math.PI / 2;
 		spotlight.exponent = 50.0;
@@ -103,9 +103,9 @@ var levels = [
 		}
 
 
-		var whiteLight = new THREE.PointLight(0xFFEEDD, 0.2);
+		var whiteLight = new THREE.PointLight(0xFFEEDD, 10000);
 		whiteLight.position.set(0, 0, 100);
-		var blackLight = new THREE.PointLight(0xFFEEDD, 0.2);
+		var blackLight = new THREE.PointLight(0xFFEEDD, 1000);
 		blackLight.position.set(0, 0, -100);
 		return { spotlight, whiteLight, blackLight };
 	}
@@ -171,7 +171,7 @@ var levels = [
 		initializeScene(floor, spotlight, whiteLight, blackLight);
 
 		// for picking
-		projector = new THREE.Projector();
+		projector = new THREE.Raycaster();
 
 		// Menu
 		initGUI();
@@ -509,7 +509,8 @@ var levels = [
 			2 * (mouseX / canvas.width) - 1,
 			1 - 2 * (mouseY / canvas.height));
 
-		return projector.pickingRay(mouseVector.clone(), camera);
+		projector.setFromCamera(mouseVector, camera);
+		return projector;
 	}
 
 	function onDocumentMouseMove(event) {

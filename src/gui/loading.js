@@ -92,7 +92,7 @@ var textures = {};
 		// for loading texture
 		function loadImage(url) {
 			const urlWithoutStatic = url.replace('static/', ''); //Remover o static apenas ao salvar no objeto
-			new window.THREE176.TextureLoader().load(url,
+			new window.THREE.TextureLoader().load(url,
 				(texture) => {
 					// store the texture in the textures object
 					textures[urlWithoutStatic] = texture;
