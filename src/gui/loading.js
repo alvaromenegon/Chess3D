@@ -65,19 +65,19 @@ var textures = {};
 				// gltf.scene.children[0] is the mesh
 				const geometry = gltf.scene.children[0].geometry;
 				geometries[name] = geometry;
-				loaded++;
-				checkLoad();
+				// loaded++;
+				// checkLoad();
 			}, undefined, function (error) {
 				console.error('An error happened while loading', url, error);
 			});
 		}
 
 		// carregar também as meshes
-		function loadGLB(url){
-			const name = url.replace('static/', '');
+		function loadGLB(url) {
+			const urlWithoutStatic = url.replace('static/', '');
+			const name = 'meshes/'+urlWithoutStatic.split('/').pop().replace('.glb', '');
 			const loader = new window.GLTFLoader();
-			loader.load(url, function (gltf) {
-				// gltf.scene.children[0] is the mesh
+			loader.load(url, (gltf) => {
 				const mesh = gltf.scene.children[0];
 				mesh.name = name;
 				geometries[name] = mesh;

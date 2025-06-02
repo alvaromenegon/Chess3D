@@ -16,7 +16,6 @@
 			this.x = null;
 			this.y = null;
 			var coordinates = null;
-			console.log("Cell constructor", arguments, arguments.length);
 			if (arguments.length === 1) {
 
 				if (typeof (arguments[0]) === "string" && arguments[0].match(/[a-h][1-8]/)) {

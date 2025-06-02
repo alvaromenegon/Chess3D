@@ -25,17 +25,27 @@
 		this.repeat.set(factor,factor);
 	};
 })();
-//Modificado para funções globais
-function clone(texture){    
+// Para a versão do Three 176 serão usadas funções em vez de protótipos
+function cloneTexture(texture){    
     console.log("clone texture", texture);
-    return texture;
-    // var newTexture = texture.clone();
-    // newTexture.needsUpdate = true;
-    // return newTexture;
+    var newTexture = texture.clone();
+    newTexture.needsUpdate = true;
+    return newTexture;
 }
 
-function tile(texture, factor) {
-    // because I do that a lot (:
+function tileTextureAndRepeat(texture, factor) {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(factor, factor);
+}
+/**
+ * As funções clone e tile são utilizadas juntas com frequência,
+ * então esta função combina ambas para facilitar o uso.
+ * @param {*} texture - A textura a ser clonada
+ * @param {*} factor - O fator de tiling
+ * @returns a texture clonada e com tiling aplicado
+ */
+function cloneAndTileTexture(texture, factor) {
+	var newTexture = cloneTexture(texture);
+	tileTextureAndRepeat(newTexture, factor);
+	return newTexture;
 }
