@@ -68,38 +68,11 @@ var levels = [
 	g_timeout = 1600;
 	g_maxply = 49;
 
-
-	/*
-	 * BASIC SETUP
-	 */
-	function init() {
-		// initialize everything for 3D
-
-		// CANVAS PARAMETERS 
-		var canvasWidth = window.innerWidth;
-		var canvasHeight = window.innerHeight;
-		var canvasRatio = canvasWidth / canvasHeight;
-
-		// RENDERER
-		renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.gammaInput = true;
-		renderer.gammaOutput = true;
-		renderer.setSize(canvasWidth, canvasHeight);
-
-		if (SHADOW) {
-			renderer.shadowMapEnabled = true;
-			renderer.shadowMapType = THREE.PCFSoftShadowMap;
-			renderer.shadowMapCascade = true;
-		}
-
-		// black background
-		renderer.setClearColor(0x000000, 1.0);
-		document.body.appendChild(renderer.domElement);
-
-		// CAMERA
+	function initializeCamera(canvasRatio) {
 		camera = new THREE.PerspectiveCamera(45, canvasRatio, 1, 40000);
 		// CONTROLS
-		cameraControls = new THREE.OrbitAndPanControls(camera, renderer.domElement);
+		cameraControls = new OrbitControls(camera, renderer.domElement); //old OrbitAndPanControls
+
 		// limitations
 		cameraControls.minPolarAngle = 0;
 		cameraControls.maxPolarAngle = 80 * Math.PI / 180;
@@ -110,8 +83,11 @@ var levels = [
 		// (might want to change that according to color selection)
 		camera.position.set(0, 100, 100);
 
+		window.camera = camera;
+		return camera;
+	}
 
-		// LIGHTING
+	function initializeSceneLights() {
 		var spotlight = new THREE.SpotLight(0xFFFFFF, 1.0);
 		spotlight.position.set(0, 300, 0);
 		spotlight.angle = Math.PI / 2;
@@ -131,18 +107,10 @@ var levels = [
 		whiteLight.position.set(0, 0, 100);
 		var blackLight = new THREE.PointLight(0xFFEEDD, 0.2);
 		blackLight.position.set(0, 0, -100);
+		return { spotlight, whiteLight, blackLight };
+	}
 
-		// generate createPiece and createCell functions
-		initPieceFactory();
-		initCellFactory();
-
-		// we let chessBoard in global scope to use it for picking
-		chessBoard = createChessBoard(BOARD_SIZE);
-		var floor = createFloor(FLOOR_SIZE, BOARD_SIZE);
-
-		//floor.position.y = -5*BOARD_SIZE/100;
-		floor.position.y = chessBoard.height;
-
+	function initializeScene(floor, spotlight, whiteLight, blackLight) {
 		// create and fill the scene with default stuff
 		scene = new THREE.Scene();
 		scene.add(floor);
@@ -155,6 +123,52 @@ var levels = [
 		scene.fog = new THREE.FogExp2(0x000000, 0.001);
 		// little reddish to fake a bit of bounce lighting
 		scene.add(new THREE.AmbientLight(0x330000));
+	}
+
+	function initializeRenderer(renderer, canvasWidth, canvasHeight) {
+		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.gammaInput = true;
+		renderer.gammaOutput = true;
+		renderer.setSize(canvasWidth, canvasHeight);
+
+		if (SHADOW) {
+			renderer.shadowMapEnabled = true;
+			renderer.shadowMapType = THREE.PCFSoftShadowMap;
+			renderer.shadowMapCascade = true;
+		}
+
+		// black background
+		renderer.setClearColor(0x000000, 1.0);
+		document.body.appendChild(renderer.domElement);
+		return renderer;
+	}
+	/*
+	 * BASIC SETUP
+	 */
+	function init() {
+		// initialize everything for 3D
+
+		// CANVAS PARAMETERS 
+		var canvasWidth = window.innerWidth;
+		var canvasHeight = window.innerHeight;
+		var canvasRatio = canvasWidth / canvasHeight;
+
+		renderer = initializeRenderer(renderer, canvasWidth, canvasHeight);
+		camera = initializeCamera(canvasRatio);
+		var { spotlight, whiteLight, blackLight } = initializeSceneLights();
+
+		// generate createPiece and createCell functions
+		initPieceFactory();
+		initCellFactory();
+
+		// we let chessBoard in global scope to use it for picking
+		chessBoard = createChessBoard(BOARD_SIZE);
+		var floor = createFloor(FLOOR_SIZE, BOARD_SIZE);
+
+		//floor.position.y = -5*BOARD_SIZE/100;
+		floor.position.y = chessBoard.height;
+
+		initializeScene(floor, spotlight, whiteLight, blackLight);
 
 		// for picking
 		projector = new THREE.Projector();
@@ -173,6 +187,7 @@ var levels = [
 
 		// avoid stretching
 		window.addEventListener('resize', onResize, false);
+
 	}
 
 	function onResize() {
@@ -213,7 +228,7 @@ var levels = [
 		}
 	}
 
-	function checkPromotion(piece,yPosition) {
+	function checkPromotion(piece, yPosition) {
 		// Aplicar o método de refatoração Extract Variable
 
 		const isPiecePawn = (piece & 0x7) === piecePawn;
@@ -605,3 +620,5 @@ var levels = [
 	window.UIPlayMove = UIPlayMove;
 
 })();
+
+
