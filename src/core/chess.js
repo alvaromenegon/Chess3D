@@ -71,7 +71,7 @@ var levels = [
 	function initializeCamera(canvasRatio) {
 		camera = new THREE.PerspectiveCamera(45, canvasRatio, 1, 40000);
 		// CONTROLS
-		cameraControls = new OrbitControls(camera, renderer.domElement); //old OrbitAndPanControls
+		cameraControls = new THREE.OrbitAndPanControls(camera, renderer.domElement);
 
 		// limitations
 		cameraControls.minPolarAngle = 0;
@@ -343,7 +343,7 @@ var levels = [
 		if (!g_backgroundEngine) {
 			g_backgroundEngineValid = true;
 			try {
-				g_backgroundEngine = new Worker("js/AI/garbochess.js");
+				g_backgroundEngine = new Worker("src/AI/garbochess.js");
 				g_backgroundEngine.onmessage = function (e) {
 					if (e.data.match("^pv") == "pv") {
 						// legacy

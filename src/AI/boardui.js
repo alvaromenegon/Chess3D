@@ -171,7 +171,7 @@ function InitializeBackgroundEngine() {
     if (g_backgroundEngine == null) {
         g_backgroundEngineValid = true;
         try {
-            g_backgroundEngine = new Worker("js/garbochess.js");
+            g_backgroundEngine = new Worker("src/AI/garbochess.js");
             g_backgroundEngine.onmessage = function (e) {
                 if (e.data.match("^pv") == "pv") {
                     UpdatePVDisplay(e.data.substr(3, e.data.length - 3));
