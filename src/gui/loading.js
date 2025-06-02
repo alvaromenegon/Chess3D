@@ -57,7 +57,7 @@ var textures = {};
 		 * @see https://threejs.org/docs/index.html#examples/en/loaders/GLTFLoader
 		 * @param {*} url caminho do arquivo a ser carregado
 		 */
-		//TODO: Armazenar as meshes em vez de geometries
+		// for loading geometry
 		function loadGeomety(url) {
 			const name = url.replace('static/', '');
 			const loader = new window.GLTFLoader();
@@ -70,22 +70,24 @@ var textures = {};
 			}, undefined, function (error) {
 				console.error('An error happened while loading', url, error);
 			});
-
 		}
 
-		// for loading mesh
-
-		function loadJSON(url) {
-			var loader = new THREE.JSONLoader();
-			loader.load(url, function (geometry) {
-				const urlWithoutStatic = url.replace('static/', ''); //Remover o static apenas ao salvar no objeto
-				//  para compatibilidade com a utilização dos recursos depois e evitar mudar no código todo
-				geometries[urlWithoutStatic] = geometry;
-
+		// carregar também as meshes
+		function loadGLB(url){
+			const name = url.replace('static/', '');
+			const loader = new window.GLTFLoader();
+			loader.load(url, function (gltf) {
+				// gltf.scene.children[0] is the mesh
+				const mesh = gltf.scene.children[0];
+				mesh.name = name;
+				geometries[name] = mesh;
 				loaded++;
 				checkLoad();
+			}, undefined, function (error) {
+				console.error('An error happened while loading', url, error);
 			});
 		}
+
 
 		// for loading texture
 		function loadImage(url) {
@@ -115,6 +117,7 @@ var textures = {};
 			switch (url.split('.').pop()) {
 				case 'glb':
 					loadGeomety(url);
+					loadGLB(url);
 					break;
 				// case 'json' :
 				// 	loadJSON(url);
