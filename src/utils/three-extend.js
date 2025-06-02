@@ -27,7 +27,6 @@
 })();
 // Para a versão do Three 176 serão usadas funções em vez de protótipos
 function cloneTexture(texture){    
-    console.log("clone texture", texture);
     var newTexture = texture.clone();
     newTexture.needsUpdate = true;
     return newTexture;

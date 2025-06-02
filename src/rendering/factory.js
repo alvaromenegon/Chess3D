@@ -38,9 +38,9 @@ function initPieceFactory() {
 	function createPiece(name, color) {
 		var size = BOARD_SIZE / COLS * PIECE_SIZE;
 		// container for the piece and its reflexion
-		var piece = new THREE.Object3D();
+		var piece = new THREE176.Object3D();
 		// base material for all the piece (only lightmap changes)
-		var material = new THREE.MeshPhongMaterial({
+		var material = new THREE176.MeshPhongMaterial({
 			color: 0xffffff,
 			specular: 0xaaaaaa,
 			shininess: 60.0,
@@ -55,7 +55,7 @@ function initPieceFactory() {
 		var urlMesh = 'meshes/' + name;
 		var urlAO = 'texture/' + name + '-ao.jpg';
 
-		var mesh = geometries[urlMesh];
+		var mesh = geometries[urlMesh].clone();
 		// no need to clone this texture
 		// since its pretty specific
 		var light = textures[urlAO];
@@ -79,7 +79,7 @@ function initPieceFactory() {
 		reflexion.scale.y *= -1;
 		reflexion.material = reflexion.material.clone();
 		reflexion.material.side = THREE.BackSide;
-
+		// debugger;
 		piece.add(mesh);
 		piece.add(reflexion);
 
@@ -205,14 +205,14 @@ function createChessBoard(size) {
 	// geo.computeBoundingBox();
 	var board = geometries['meshes/board'].clone();
 	board.material =
-		new THREE.MeshPhongMaterial({
+		new THREE176.MeshPhongMaterial({
 			color: 0xffffff,
 			map: wood,
 			specular: 0xffffff,
 			specularMap: spec,
 			normalMap: norm,
 			shininess: 60,
-			normalScale: new THREE.Vector2(0.2, 0.2)
+			normalScale: new THREE176.Vector2(0.2, 0.2)
 		});
 	var hCorrection = 0.62; // yeah I should just create a better geometry
 	board.scale.set(size, size * hCorrection, size);
@@ -237,7 +237,7 @@ function createFloor(size, chessboardSize) {
 
 	// material
 	var tiling = 30 * size / 1000;
-	var material = new THREE.MeshPhongMaterial({
+	var material = new THREE176.MeshPhongMaterial({
 		color: 0xffffff,
 		wireframe: WIREFRAME,
 		specular: 0xaaaaaa,
@@ -249,13 +249,10 @@ function createFloor(size, chessboardSize) {
 	var norm = textures['texture/floor_N.jpg'];
 	var light = textures['texture/fakeShadow.jpg'];
 
-	// diff.tile(tiling);
-	// spec.tile(tiling);
-	// norm.tile(tiling);
 	tileTextureAndRepeat(diff, tiling);
 	tileTextureAndRepeat(spec, tiling);
 	tileTextureAndRepeat(norm, tiling);
-	light.format = THREE.RGBFormat;
+	light.format = THREE176.RGBFormat;
 
 	material.map = diff;
 	material.normalMap = norm;
@@ -267,20 +264,23 @@ function createFloor(size, chessboardSize) {
 	var halfBoard = chessboardSize / 2;
 	var halfSize = size / 2;
 
-	var floorGeo = new THREE.Geometry();
-	// outter vertices
-	floorGeo.vertices.push(new THREE.Vector3(-halfSize, 0, -halfSize));
-	floorGeo.vertices.push(new THREE.Vector3(halfSize, 0, -halfSize));
-	floorGeo.vertices.push(new THREE.Vector3(halfSize, 0, halfSize));
-	floorGeo.vertices.push(new THREE.Vector3(-halfSize, 0, halfSize));
-	// hole vertices
-	floorGeo.vertices.push(new THREE.Vector3(-halfBoard, 0, -halfBoard));
-	floorGeo.vertices.push(new THREE.Vector3(halfBoard, 0, -halfBoard));
-	floorGeo.vertices.push(new THREE.Vector3(halfBoard, 0, halfBoard));
-	floorGeo.vertices.push(new THREE.Vector3(-halfBoard, 0, halfBoard));
+	var floorGeo = new THREE176.BufferGeometry();
 
-	floorGeo.faceVertexUvs[0] = [];
-	floorGeo.faceVertexUvs[1] = [];
+	//adaptação para BufferGeometry
+	const positions = new Float32Array([
+		// outter vertices
+		-halfSize, 0, -halfSize,
+		halfSize, 0, -halfSize,
+		halfSize, 0, halfSize,
+		-halfSize, 0, halfSize,
+		// hole vertices
+		-halfBoard, 0, -halfBoard,
+		halfBoard, 0, -halfBoard,
+		halfBoard, 0, halfBoard,
+		-halfBoard, 0, halfBoard
+	]);
+
+	
 
 	/*
 	 *        vertices         uvs-lightmap
@@ -298,65 +298,36 @@ function createFloor(size, chessboardSize) {
 	 */
 
 	// all normals just points upward
-	var normal = new THREE.Vector3(0, 1, 0);
-
-	// list of vertex index for each face
-	var faces = [
-		[0, 4, 5, 1],
-		[1, 5, 6, 2],
-		[2, 6, 7, 3],
-		[3, 7, 4, 0]
+	// Normais (todos para cima)
+	const normals = Array(8).fill([0, 1, 0]).flat();
+	const indices = [
+		0, 4, 5, 0, 5, 1,
+		1, 5, 6, 1, 6, 2,
+		2, 6, 7, 2, 7, 3,
+		3, 7, 4, 3, 4, 0
 	];
 
-	faces.forEach(function (f) {
-		var uvs1 = [];
-		var uvs2 = [];
-		var lightU, lightV;
-		f.forEach(function (v, i) {
-			// we linearily transform positions
-			// from a -halfSize-halfSize space
-			// to a 0-1 space
-			uvs1.push(new THREE.Vector2(
-				(floorGeo.vertices[v].x + halfSize) / size,
-				(floorGeo.vertices[v].z + halfSize) / size
-			));
-			lightU = (v < 4) ? 80 : 0;
-			lightV = (i < 2) ? 0 : 1;
-			uvs2.push(new THREE.Vector2(lightU, lightV));
-		});
+	const uvs1 = [
+		0, 0, 1, 0, 1, 1, 0, 1, 
+		0.25, 0.25, 0.75, 0.25, 0.75, 0.75, 0.25, 0.75
+	];
+	const uvs2 = [
+		1, 1, 0, 1, 0, 0, 1, 0,
+		0.8, 0.8, 0.2, 0.8, 0.2, 0.2, 0.8, 0.2
+	];
 
-		// we create a new face folowing the faces list
-		var face = new THREE.Face4(
-			f[0], f[1], f[2], f[3]
-		);
+	floorGeo.setAttribute('position', new THREE176.Float32BufferAttribute(positions, 3));
+	floorGeo.setAttribute('normal', new THREE176.Float32BufferAttribute(normals, 3));
+	floorGeo.setAttribute('uv', new THREE176.Float32BufferAttribute(uvs1, 2));
+	floorGeo.setAttribute('uv2', new THREE176.Float32BufferAttribute(uvs2, 2));
+	floorGeo.setIndex(indices);
+	var floor = new THREE176.Mesh(floorGeo, material);
 
-		// and apply normals (without this, no proper lighting)
-		face.normal.copy(normal);
-		face.vertexNormals.push(
-			normal.clone(),
-			normal.clone(),
-			normal.clone(),
-			normal.clone()
-		);
-
-		// add the face to the geometry's faces list
-		floorGeo.faces.push(face);
-
-		// add uv coordinates to uv channels.
-		floorGeo.faceVertexUvs[0].push(uvs1); // for diffuse/normal
-		floorGeo.faceVertexUvs[1].push(uvs2); // for lightmap
-
-	});
-
-	// not sure it's needed but since it's in THREE.PlaneGeometry...
-	floorGeo.computeCentroids();
-
-	var floor = new THREE.Mesh(floorGeo, material);
+	var floor = new THREE176.Mesh(floorGeo, material);
 
 	if (SHADOW) {
 		floor.receiveShadow = true;
 	}
-
 
 	floor.name = "floor";
 	return floor;

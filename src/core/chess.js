@@ -427,7 +427,7 @@ var levels = [
 		var cell;
 		board3D.forEach(function (piece, index) {
 			cell = new Cell(index);
-			piece.position = cell.getWorldPosition();
+			piece.position.copy(cell.getWorldPosition());
 			piece.cell = index;
 			scene.add(piece);
 		});
