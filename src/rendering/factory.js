@@ -71,7 +71,12 @@ function initPieceFactory() {
 		}
 		mesh.scale.set(size, size, size);
 		// we rotate pieces so they face each other (mostly relevant for knight)
-		mesh.rotation.y += (color == WHITE) ? -Math.PI / 2 : Math.PI / 2;
+		// rotacionar apenas o cavalo porque é o único que precisa
+		// e a rotação original não estava funcionando
+		if (name === 'knight') {
+			mesh.rotation.z += (color == WHITE) ? Math.PI / 2 : -Math.PI / 2;
+		}
+		// mesh.rotation.y += (color == WHITE) ? -Math.PI / 2 : Math.PI / 2;
 
 		// we create the reflection
 		// it's a cloned with a negative scale on the Y axis
@@ -271,7 +276,7 @@ function createFloor(size, chessboardSize) {
 		-halfBoard, 0, halfBoard
 	]);
 
-	
+
 
 	/*
 	 *        vertices         uvs-lightmap
@@ -299,7 +304,7 @@ function createFloor(size, chessboardSize) {
 	];
 
 	const uvs1 = [
-		0, 0, 1, 0, 1, 1, 0, 1, 
+		0, 0, 1, 0, 1, 1, 0, 1,
 		0.25, 0.25, 0.75, 0.25, 0.75, 0.75, 0.25, 0.75
 	];
 	const uvs2 = [
@@ -330,7 +335,7 @@ function createValidCellMaterial() {
 	validCellMaterial = [];
 	var tiling = 2;
 	// common textures
-	var diff;	
+	var diff;
 	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
 	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
 
