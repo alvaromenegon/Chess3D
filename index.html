@@ -1,13 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>CHESS 3D</title>
   <link href="static/css/styles.css" rel="stylesheet" type="text/css">
   <link href="static/css/dark-hive/jquery-ui-1.10.3.custom.css" rel="stylesheet">
   <!-- Módulo Principal - adaptação ao THREE atualizado via NPM -->
-  <script type="module" src="./src/main.js"></script> 
+  <script type="module" src="./src/main.js"></script>
 </head>
+
 <body id="container">
+  <div id="game-over-overlay" class="hidden">
+    <h1 id="gameOverMessage" class="message">Checkmate</h1>
+    <div class="buttons">
+      <button class="btn" id="newGame">New Game</button>
+      <button class="btn" id="undoMove">Undo Move</button>
+    </div>
+  </div>
+
+  <section id="gui" class="hidden">
+    <div class="gui-header">
+      <p>Menu</p>
+      <button id="closeMenu"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+          class="bi bi-x-circle" viewBox="0 0 16 16">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+          <path
+            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+        </svg></button>
+    </div>
+    <div id="gui-body">
+      <button class="btn" id="btn-newGame">New Game</button>
+      <button class="btn" id="btn-loadGame">Load Game</button>
+      <button class="btn" id="btn-saveGame">Save Game</button>
+    </div>
+  </section>
+  <button id="openMenu" class="btn hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill"
+      viewBox="0 0 16 16">
+      <path
+        d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5m5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5" />
+    </svg>
+  </button>
+  <div id="game-info" class="hidden">
+    <label for="promotionSelect">Promotion:</label>
+    <select id="promotionSelect">
+      <option value="queen">Queen</option>
+      <option value="rook">Rook</option>
+      <option value="bishop">Bishop</option>
+      <option value="knight">Knight</option>
+    </select>
+    <p id="lastMoves">Last Moves:</p>
+    <!-- Lista de movimentos -->
+    <textarea id="moveList" readonly>
+
+  </textarea>
+    <button class="btn" id="btn-undo">Undo Move</button>
+  </div>
 </body>
 
 </html>

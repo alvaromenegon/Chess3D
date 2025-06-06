@@ -1,68 +1,210 @@
- html,
- body,
- canvas {
-     margin: 0;
-     padding: 0;
-     overflow: hidden;
-     background: black;
-     font-family: Verdana, Arial, sans-serif;
- }
+html,
+body,
+canvas {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: Verdana, Arial, sans-serif;
+    box-sizing: border-box;
+}
 
- body {
-     overflow: visible;
- }
+body {
+    background: black;
+    color: #eeeeee;
+    font-size: 1em;
+    overflow: visible;
+}
 
- /* main gui bar */
- #gui,
- #gui div {
-     overflow: hidden;
- }
+.btn {
+    border: 1px solid #444444;
+    background-image: linear-gradient(to bottom, #666666, #222222);
+    color: #eeeeee;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25em;
+    border-radius: 25px;
+    cursor: pointer;
+}
 
- #gui ul {
-     list-style-type: none;
-     padding: 0;
-     margin: 0;
- }
+.btn:hover {
+    background-image: linear-gradient(to bottom, #888888, #444444);
+    color: #ffffff;
+}
 
- #gui .ui-accordion-content {
-     padding: 0.2em 0.2em;
-     border-top: 0;
- }
+.gui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em;
+    border-bottom: 2px solid #444444;
+}
 
- #gui textarea {
-     background: transparent;
-     border: 1px solid white;
-     resize: none;
-     color: white;
-     font-size: 0.7em;
-     font-family: 'consolas' monospace;
- }
+#openMenu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    width: fit-content;
+}
 
- /* check/stale/mate display */
- #info {
-     font-size: 1.5em;
-     padding: 0.3em 1.0em;
-     text-align: right;
-     color: #ff4444;
-     width: 150;
-     display: none;
- }
+#closeMenu {
+    color: red;
+    background: transparent;
+    border: none;
+    padding: 0.2em 0.5em;
+    cursor: pointer;
+}
 
- /* loading */
- #progressbar {
-     padding: 2px;
-     border: 2px solid #bbb;
- }
+.hidden {
+    height: 0;
+    width: 0;
+    transition: height 0.5s ease-in-out, width 0.5s ease-in-out;
+    visibility: hidden;
+    opacity: 0;
+}
 
- #progress-label {
-     color: #bbb;
-     width: 100%;
-     position: absolute;
-     text-align: center;
-     top: 7px;
-     font-weight: bold;
- }
+#game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9));
+    color: white;
+    font-size: 2em;
+    z-index: 10;
+}
 
- #tips {
-     text-align: center;
- }
+#game-over-overlay.hidden {
+    display: none;
+}
+
+#gameOverMessage {
+    margin: 0.5em;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#gameOverMessage.checkmate {
+    color: #ff4444;
+}
+
+#gameOverMessage.stalemate {
+    color: #ffcc00;
+}
+
+#info{
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    color:#ffcc00;
+    font-weight: bold;
+    text-align: center;    
+}
+
+/* Efeito de deslizar para baixo, vindo de "cima" da tela e aparecendo */
+.slideDown {
+    animation: slideDown 0.5s ease-in-out forwards;
+}
+
+.slideUp {
+    animation: slideUp 0.5s ease-in-out forwards;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+#game-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 150px;
+    background-image: url("../css/dark-hive/images/ui-bg_loop_25_000000_21x21.png");
+    background-repeat: repeat;
+    color: white;
+    font-size: 0.8em;
+    z-index: 1000;
+    text-align: center;
+}
+
+/* Centralizar na tela */
+#gui {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: 50%;
+    height: 50%;
+    min-width: 150px;
+    background-image: url("../css/dark-hive/images/ui-bg_loop_25_000000_21x21.png");
+    background-repeat: repeat;
+    color: white;
+    border: 5px solid #444444;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.paused {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    cursor: default;
+}
+
+#moveList {
+    background: transparent;
+    border: none;
+    min-height: 150px;
+    resize: none;
+    color: #eeeeee;
+    width: 100%;
+    overflow: auto;
+}
+
+/* loading */
+#progressbar {
+    padding: 2px;
+    border: 2px solid #bbb;
+}
+
+#progress-label {
+    color: #bbb;
+    width: 100%;
+    position: absolute;
+    text-align: center;
+    top: 7px;
+    font-weight: bold;
+}
+
+#tips {
+    text-align: center;
+}

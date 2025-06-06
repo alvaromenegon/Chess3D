@@ -5,16 +5,16 @@
 /* global THREE,  $, document, window, console */
 /* global LOADING_BAR_SCALE,ROWS,COLS,PIECE_SIZE, BOARD_SIZE, FLOOR_SIZE, WIREFRAME, DEBUG, Cell, WHITE, BLACK, FEEDBACK, SHADOW */
 /* global SearchAndRedraw, UIPlayMove, camera, levels, g_allMoves:true, promotion:true, g_backgroundEngine:true, validMoves, InitializeBackgroundEngine, EnsureAnalysisStopped, newGame, redrawBoard, parsePGN, g_playerWhite:true */
-	/*global Search,FormatSquare,GenerateMove,MakeMove,GetMoveSAN,MakeSquare,UnmakeMove, FormatMove, ResetGame, GetFen, GetMoveFromString, alert, InitializeFromFen, GenerateValidMoves */
-	/*global g_inCheck,g_board,g_pieceList, g_toMove, g_timeout:true,g_maxply:true */
-	/*global moveflagCastleKing, moveflagCastleQueen, moveflagEPC, moveflagPromotion, colorWhite*/
-	/*global moveflagPromoteQueen,moveflagPromoteRook,moveflagPromoteBishop,moveflagPromoteKnight*/
-	/*global piecePawn, pieceKnight, pieceBishop, pieceRook, pieceQueen, pieceKing */
+/*global Search,FormatSquare,GenerateMove,MakeMove,GetMoveSAN,MakeSquare,UnmakeMove, FormatMove, ResetGame, GetFen, GetMoveFromString, alert, InitializeFromFen, GenerateValidMoves */
+/*global g_inCheck,g_board,g_pieceList, g_toMove, g_timeout:true,g_maxply:true */
+/*global moveflagCastleKing, moveflagCastleQueen, moveflagEPC, moveflagPromotion, colorWhite*/
+/*global moveflagPromoteQueen,moveflagPromoteRook,moveflagPromoteBishop,moveflagPromoteKnight*/
+/*global piecePawn, pieceKnight, pieceBishop, pieceRook, pieceQueen, pieceKing */
 "use strict";
 (function () {
 
 	// jQuery pgn textarea
-	var $pgn;
+	var $moveList = $("#moveList");
 	// list of moves in pgn format
 	var g_pgn = [];
 	// jQuery check feedback
@@ -24,112 +24,73 @@
 		// create the DOM element
 		// to display Chc
 		$info = $("<div>")
-			.css("position","absolute")
+			.css("position", "absolute")
 			.position({
-				of:$("body"),
-				my:"right top",
-				at:"right top"
+				of: $("body"),
+				my: "center top",
+				at: "center top"
 			})
-			.attr("id","info")
+			.attr("id", "info")
 			.appendTo($("body"))
-			.css("left","auto")
-			.css("right","0");
+			.css("left", "auto")
+			.css("right", "0");
 	}
-
-
-	function initGUI() {
-		var $gui = $("<div>")
-			.css("position","absolute")
-			.position({
-				of:$("body"),
-				my:"left top",
-				at:"left top"
-			})
-			.width(150)
-			.attr("id","gui");
-
-		$("<p>")
-			.text("menu")
-			.appendTo($gui);
-
-		var $menudiv = $("<div>").appendTo($gui);
-
-		var $menu = $("<ul>").appendTo($menudiv);
-
-		makeButton("NewGame",newGameDialog,$menu);
-		makeButton("Undo",undo,$menu);
-		makeButton("Load",loadDialog,$menu);
-		makeButton("Save",save,$menu);
-
-		$("<label>")
-			.text("Promotion:")
-			.append(
-				$("<select>")
-					.width(140)
-					.append(
-						$("<option>")
-							.text("Queen"))
-					.append(
-						$("<option>")
-							.text("Rook"))
-					.append(
-						$("<option>")
-							.text("Bishop"))
-					.append(
-						$("<option>")
-							.text("Knight"))
-					.change( changePromo )
-					.appendTo($menudiv)
-			)
-			.appendTo($menudiv);
-
-
-		$pgn = $("<textarea>")
-			.attr("cols","16")
-			.attr("rows","10")
-			.attr("readonly","readonly")
-			.appendTo($menudiv);
-
-
-		$("body").append($gui);
-
-		$gui.accordion({
-			header: "p",
-			collapsible: true
+	/**
+	 * Escurece um pouco a tela por trás do menu
+	 * e remove o hidden
+	 */
+	function openMenu() {
+		$("#gui").removeClass("hidden");
+		let pause = $("<div>");
+		pause.attr("id", "pause")
+			.css("position", "absolute")
+			.css("top", "0")
+			.css("left", "0")
+			.css("width", "100%")
+			.css("height", "100%")
+			.css("background-color", "rgba(0, 0, 0, 0.5)")
+			.css("z-index", "999")
+			.appendTo($("body"));
+		$("#openMenu").addClass("hidden");
+		$("#closeMenu").removeClass("hidden").on("click", function () {
+			$("#gui").addClass("hidden");
+			pause.remove();
+			$("#openMenu").removeClass("hidden");
+			$("#closeMenu").addClass("hidden");
 		});
 	}
 
 
-	function makeButton(name,callback,parent) {
-		var $item = $("<li>").appendTo(parent);
-		return $("<button>")
-			.button({
-				label:name
-			})
-			.width(140)
-			.click(callback)
-			.appendTo($item);
+	function initGUI() {
+		$("#openMenu").removeClass("hidden").on("click", openMenu);
+		$("#game-info").removeClass("hidden");
+		$("#promotionSelect").on("change", changePromo);
+		$("#btn-newGame").on("click", newGameDialog);
+		$("#btn-loadGame").on("click", loadDialog);
+		$("#btn-saveGame").on("click", save);
+		$("#btn-undo").on("click", undo);
 	}
 
 	function newGameDialog() {
+		hideCheckmate();
 		var id = "newgame";
 		var dialogColor = WHITE;
 		var dialogLevel = 0;
 
-		if ($("#"+id).length !== 0) {
+		if ($("#" + id).length !== 0) {
 			return false;
 		}
 
 		var $newGame = $("<div>")
-			.attr("id",id)
-			.attr("title","New Game")
+			.attr("id", id)
+			.attr("title", "New Game")
 			.appendTo($("body"));
 
 		// buttonset div
 		var $radio = $("<p>").appendTo($newGame);
 		// first button for white
 		$('<input type="radio" id="white" name="color" checked="checked">')
-			.click(function() {
+			.click(function () {
 				dialogColor = WHITE;
 			})
 			.appendTo($radio);
@@ -137,7 +98,7 @@
 
 		// second button for black
 		$('<input type="radio" id="black" name="color"/>')
-			.click(function() {
+			.onclick(function () {
 				dialogColor = BLACK;
 			})
 			.appendTo($radio);
@@ -150,9 +111,9 @@
 		var $label = $("<label>")
 			.text("AI Strength:");
 		var $levelSelect = $('<select>')
-			.css("display","block")
+			.css("display", "block")
 			.appendTo($label)
-			.change(function(event) {
+			.change(function (event) {
 				dialogLevel = $(event.currentTarget).val();
 			});
 		$("<p>").append($label).appendTo($newGame);
@@ -161,16 +122,16 @@
 		for (var i = 0; i < levels.length; i++) {
 			$('<option>')
 				.val(i)
-				.text("level "+(i+1))
+				.text("level " + (i + 1))
 				.appendTo($levelSelect);
 		}
 		$newGame.dialog({
-			close:function(event,ui) {
+			close: function (event, ui) {
 				$newGame.remove();
 			},
 			buttons: {
-				"Start": function() {
-					newGame(dialogColor,dialogLevel);
+				"Start": function () {
+					newGame(dialogColor, dialogLevel);
 					$(this).remove();
 				}
 			}
@@ -179,12 +140,12 @@
 	/*
 	 * GAME CONTROL
 	 */
-	function newGame(color,level) {
+	function newGame(color, level) {
 
 		// change AI parameters according to level
 		if (levels[level] !== undefined) {
 			g_timeout = levels[level].timeout;
-			g_maxply  = levels[level].maxply;
+			g_maxply = levels[level].maxply;
 		}
 
 		EnsureAnalysisStopped();
@@ -217,6 +178,7 @@
 	}
 
 	function undo() {
+		hideCheckmate();
 		if (g_allMoves.length === 0) {
 			return;
 		}
@@ -243,18 +205,18 @@
 
 	function loadDialog() {
 		var id = "loadGame";
-		if ($("#"+id).length !== 0) {
+		if ($("#" + id).length !== 0) {
 			return false;
 		}
 
 		var $loadGame = $("<div>")
-			.attr("id",id)
-			.attr("title","Load Game")
+			.attr("id", id)
+			.attr("title", "Load Game")
 			.appendTo($("body"));
 
 		$('<input>')
-			.attr("type","file")
-			.change(function(evt) {
+			.attr("type", "file")
+			.on('change',function (evt) {
 				load(evt);
 				$loadGame.remove();
 			})
@@ -262,8 +224,9 @@
 
 		$loadGame
 			.dialog({
-				minWidth:420,
-				close:function(event,ui) {
+				minWidth: 420,
+				modal: true,
+				close: function (event, ui) {
 					$loadGame.remove();
 				}
 			});
@@ -277,7 +240,7 @@
 
 		if (file) {
 			var reader = new FileReader();
-			reader.onload = function(e) {
+			reader.onload = function (e) {
 				var contents = e.target.result;
 				loadPGN(contents);
 			};
@@ -301,9 +264,9 @@
 		redrawBoard();
 	}
 
-	function loadPGN (pgn) {
+	function loadPGN(pgn) {
 		var parsedPGN = parsePGN(pgn);
-		var fen   = parsedPGN.fen;
+		var fen = parsedPGN.fen;
 		var moves = parsedPGN.sequence;
 
 		g_allMoves = [];
@@ -317,23 +280,23 @@
 			ResetGame();
 		}
 
-		function Piece(flag,promo) {
-			this.flag  = flag;
+		function Piece(flag, promo) {
+			this.flag = flag;
 			this.promo = promo;
 		}
 
 
-		moves.forEach(function(move) {
+		moves.forEach(function (move) {
 			var i;
 			var formatedMove;
 			var vMoves = GenerateValidMoves();
 			var pieces = {
-				"P": new Piece(piecePawn,null),
-				"N": new Piece(pieceKnight,moveflagPromoteKnight),
-				"B": new Piece(pieceBishop,moveflagPromoteBishop),
-				"R": new Piece(pieceRook,moveflagPromoteRook),
-				"Q": new Piece(pieceQueen,moveflagPromoteQueen),
-				"K": new Piece(pieceKing,null)
+				"P": new Piece(piecePawn, null),
+				"N": new Piece(pieceKnight, moveflagPromoteKnight),
+				"B": new Piece(pieceBishop, moveflagPromoteBishop),
+				"R": new Piece(pieceRook, moveflagPromoteRook),
+				"Q": new Piece(pieceQueen, moveflagPromoteQueen),
+				"K": new Piece(pieceKing, null)
 			};
 
 			// get the piece flag
@@ -345,9 +308,9 @@
 			var startList = [];
 
 			// get all square that has this kind of piece
-			var pieceIdx = (color|piece) << 4;
+			var pieceIdx = (color | piece) << 4;
 
-			while(g_pieceList[pieceIdx] !== 0) {
+			while (g_pieceList[pieceIdx] !== 0) {
 				startList.push(new Cell(FormatSquare(g_pieceList[pieceIdx])));
 				pieceIdx++;
 			}
@@ -358,22 +321,22 @@
 				// or even the position directly
 				// We will filter the startList using it
 				for (i = startList.length - 1; i >= 0; i--) {
-					if( from.length === 1) {
+					if (from.length === 1) {
 						// only the row is given
 
 						if (from.match(/[a-h]/) && startList[i].position.charAt(0) !== from) {
 							// different starting row
-							startList.splice(i,1);
+							startList.splice(i, 1);
 						} else if (from.match(/[1-8]/) && startList[i].position.charAt(1) !== from) {
 							// different starting line
-							startList.splice(i,1);
+							startList.splice(i, 1);
 						}
 					} else if (from.length === 2) {
 						// the starting coordinate is given
 						// this is then just an extra check
 						if (startList[i].position !== from) {
 							// different starting coordinate
-							startList.splice(i,1);
+							startList.splice(i, 1);
 						}
 					}
 				}
@@ -383,8 +346,8 @@
 			// only one should make a valid move 
 			// paired with the provided destination
 
-			var end   = new Cell(move.to);
-			var endSquare   = MakeSquare(end.y, end.x);
+			var end = new Cell(move.to);
+			var endSquare = MakeSquare(end.y, end.x);
 
 			var promotion = (move.promotion) ? pieces[move.promotion.substr(1)].promo : undefined; // remove the "="
 
@@ -395,15 +358,15 @@
 				if (promotion !== undefined) {
 					// we have a promotion so we need to generate a 
 					// specific move and check against it
-					if(vMoves[i] === GenerateMove(startSquare, endSquare, moveflagPromotion | promotion)) {
+					if (vMoves[i] === GenerateMove(startSquare, endSquare, moveflagPromotion | promotion)) {
 						formatedMove = vMoves[i];
 					}
 				} else {
 					// just checking start and end square allows to cover 
 					// all other special moves like "en passant" capture and
 					// castling
-					if ( (vMoves[i] & 0xFF)       == startSquare &&
-						((vMoves[i] >> 8) & 0xFF) == endSquare ) {
+					if ((vMoves[i] & 0xFF) == startSquare &&
+						((vMoves[i] >> 8) & 0xFF) == endSquare) {
 						formatedMove = vMoves[i];
 					}
 				}
@@ -417,8 +380,8 @@
 				if (formatedMove) break;
 			}
 
-			if(formatedMove) {
-				UIPlayMove(formatedMove,false);
+			if (formatedMove) {
+				UIPlayMove(formatedMove, false);
 			} else {
 				console.log(move);
 				throw "Invalid PGN";
@@ -443,8 +406,8 @@
 		redrawBoard();
 	}
 
-	function clearPGN () {
-		$pgn.val("");
+	function clearPGN() {
+		$("pgn").val("");
 		g_pgn = [];
 	}
 
@@ -455,21 +418,21 @@
 
 	function updatePGN() {
 
-		$pgn.val(getPGN());
-		$pgn.scrollTop($pgn[0].scrollHeight);
+		$moveList.val(getPGN());
+		$moveList.scrollTop($moveList[0].scrollHeight);
 	}
 
 	function getPGN() {
 		var str = "";
-		g_pgn.forEach(function(move,i) {
-			if(i%2 === 0) {
+		g_pgn.forEach(function (move, i) {
+			if (i % 2 === 0) {
 				if (move === "..") {
-					str += ((i/2)+1)+"...";
+					str += ((i / 2) + 1) + "...";
 				} else {
-					str += ((i/2)+1)+". "+move;
+					str += ((i / 2) + 1) + ". " + move;
 				}
 			} else {
-				str += " "+move+"\r\n";
+				str += " " + move + "\r\n";
 			}
 		});
 		return str;
@@ -481,8 +444,7 @@
 		var filename = "chessSave.pgn";
 		var a = document.createElement("a");
 
-		if (typeof a.download === "undefined")
-		{
+		if (typeof a.download === "undefined") {
 			var str = 'data:text/html,' + encodeURIComponent("<p><a download='" + filename + "' href=\"data:application/json," +
 				encodeURIComponent(getPGN()) +
 				"\">Download link</a></p>");
@@ -494,9 +456,7 @@
 			a.href = "data:application/json," + encodeURIComponent(getPGN());
 			a.download = filename;
 			body.appendChild(a);
-			var clickEvent = document.createEvent("MouseEvent");
-			clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-			a.dispatchEvent(clickEvent);
+			a.click();
 			body.removeChild(a);
 		}
 
@@ -504,38 +464,69 @@
 
 	function changePromo(event) {
 		var choice = $(event.currentTarget).val();
-		switch(choice) {
-		case "Queen":
-			promotion = moveflagPromoteQueen;
-			break;
-		case "Rook":
-			promotion = moveflagPromoteRook;
-			break;
-		case "Bishop":
-			promotion = moveflagPromoteBishop;
-			break;
-		case "Knight":
-			promotion = moveflagPromoteKnight;
-			break;
+		switch (choice) {
+			case "queen":
+				promotion = moveflagPromoteQueen;
+				break;
+			case "rook":
+				promotion = moveflagPromoteRook;
+				break;
+			case "bishop":
+				promotion = moveflagPromoteBishop;
+				break;
+			case "knight":
+				promotion = moveflagPromoteKnight;
+				break;
+		}
+	}
+
+	function hideCheckmate() {
+		$("#game-over-overlay").addClass("hidden");
+		$("canvas").css("filter", "none");
+		$("#new-game").off("click");
+		$("#gameOverMessage").removeClass("checkmate stalemate");
+	}
+	// Aplica um filtro de escala de cinza,
+	// exibe a mensagem "Checkmate" ou "Stalemate"
+	// no centro da tela, e exibe os botões de
+	// reiniciar ou voltar a jogada (undo)
+	function displayCheckmate(message) {
+		$("canvas").css("filter", "grayscale(100%)");
+		// window.animateGameOver();
+		$("#newGame").on("click", newGameDialog);
+		$("#undoMove").on("click", undo);
+		let $overlay = $("#game-over-overlay");
+		$overlay.removeClass("hidden");
+		$("#gameOverMessage").text(message);
+		if (message === "Checkmate") {
+			$("#gameOverMessage").addClass("checkmate");
+		} else {
+			$("#gameOverMessage").addClass("stalemate");
 		}
 	}
 
 	function displayCheck() {
 		if (validMoves.length === 0) {
-			$info.text(( g_inCheck ? 'Checkmate' : 'Stalemate' ));
+			// no valid moves means checkmate or stalemate
+			if (g_inCheck) {
+				displayCheckmate("Checkmate");
+			} else {
+				displayCheckmate("Stalemate");
+			}
+			return;
 		} else if (g_inCheck) {
 			$info.text('Check');
 		} else {
 			$info.text('');
 		}
 		if ($info.text() !== '') {
-			$info.show("highlight",{},500);
+			$info.show("highlight", {}, 500);
 		} else {
 			$info.hide();
 		}
 	}
 
-	window.initGUI  = initGUI;
+	window.initGUI = initGUI;
 	window.initInfo = initInfo;
 	window.clearPGN = clearPGN;
 	window.addToPGN = addToPGN;
