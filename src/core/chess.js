@@ -602,11 +602,15 @@ var levels = [
 		removeLoader();
 
 		init();
-		if (DEBUG) {
-			window.scene = scene;
-			window.renderer = renderer;
-		}
-		newGame(WHITE);
+		// if (DEBUG) {
+		window.scene = scene;
+		window.renderer = renderer;
+		window.camera = camera;
+		// }
+		redrawBoard();
+		// standbyAnimation(scene, renderer, camera);
+		showNewGameOptions();
+		// newGame(WHITE);
 		animate();
 
 		//setTimeout(loadFEN('8/Q5P1/8/8/8/8/8/2K1k3 w - -'),2000);

@@ -4,12 +4,19 @@
 <head>
   <title>CHESS 3D</title>
   <link href="static/css/styles.css" rel="stylesheet" type="text/css">
-  <link href="static/css/dark-hive/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+  <!-- <link href="static/css/dark-hive/jquery-ui-1.10.3.custom.css" rel="stylesheet"> -->
   <!-- Módulo Principal - adaptação ao THREE atualizado via NPM -->
   <script type="module" src="./src/main.js"></script>
 </head>
 
 <body id="container">
+  <div id="loading">
+    <!-- <main> -->
+      <p id="tips"></p>
+      <progress id="progressbar" class="progress-bar" value="0" max="100"></progress>
+      <label for="progressbar" id="progressbar-label" class="progress-label">0%</label>
+    <!-- </main> -->
+  </div>
   <div id="game-over-overlay" class="hidden">
     <h1 id="gameOverMessage" class="message">Checkmate</h1>
     <div class="buttons">
@@ -18,9 +25,29 @@
     </div>
   </div>
 
-  <section id="gui" class="hidden">
+  <div id="newGameDialog" class="chess-menu hidden">
+    <h2>New Game</h2>
+    <hr />
+    <div id="gameMode">
+      <label for="startColorSelect">Select Color:</label>
+      <input type="radio" id="white" name="colorRadio" value="1" checked>
+      <label for="white">White</label>
+      <input type="radio" id="black" name="colorRadio" value="0">
+      <label for="black">Black</label>
+
+    </div>
+    <div>
+      <label for="difficultySelect">Difficulty: <span id='difficulty'>1</span></label>
+      <input type="range" id="difficultySelect" min="1" max="10" step="1" value="0">
+    </div>
+    <button class="btn" id="startGameButton">Start Game</button>
+    <button class="btn" id="loadGameButton">Load Game</button>
+    <button class="btn" id="cancelNewGameButton">Cancel</button>
+  </div>
+
+  <div id="gui" class="chess-menu hidden">
     <div class="gui-header">
-      <p>Menu</p>
+      <h2>Menu</h2>
       <button id="closeMenu"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
           class="bi bi-x-circle" viewBox="0 0 16 16">
           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
@@ -28,12 +55,18 @@
             d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
         </svg></button>
     </div>
-    <div id="gui-body">
+    <div class="gui-body">
+      <button class="btn" id="btn-newGame">New Game</button>
+      <button class="btn" id="btn-loadGame">Load Game</button>
+      <input type="file" id="uploadFile" class="hidden" accept=".pgn">
+      <button class="btn" id="btn-saveGame">Save Game</button>
+    </div>
+  </div>
+  <!-- <div id="gui-body">
       <button class="btn" id="btn-newGame">New Game</button>
       <button class="btn" id="btn-loadGame">Load Game</button>
       <button class="btn" id="btn-saveGame">Save Game</button>
-    </div>
-  </section>
+    </div> -->
   <button id="openMenu" class="btn hidden">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill"
       viewBox="0 0 16 16">

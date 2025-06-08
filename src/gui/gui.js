@@ -24,16 +24,8 @@
 		// create the DOM element
 		// to display Chc
 		$info = $("<div>")
-			.css("position", "absolute")
-			.position({
-				of: $("body"),
-				my: "center top",
-				at: "center top"
-			})
 			.attr("id", "info")
 			.appendTo($("body"))
-			.css("left", "auto")
-			.css("right", "0");
 	}
 	/**
 	 * Escurece um pouco a tela por trás do menu
@@ -49,7 +41,7 @@
 			.css("width", "100%")
 			.css("height", "100%")
 			.css("background-color", "rgba(0, 0, 0, 0.5)")
-			.css("z-index", "999")
+			.css("z-index", "13")
 			.appendTo($("body"));
 		$("#openMenu").addClass("hidden");
 		$("#closeMenu").removeClass("hidden").on("click", function () {
@@ -67,81 +59,92 @@
 		$("#promotionSelect").on("change", changePromo);
 		$("#btn-newGame").on("click", newGameDialog);
 		$("#btn-loadGame").on("click", loadDialog);
+		$("#uploadFile").on("change", load);
 		$("#btn-saveGame").on("click", save);
 		$("#btn-undo").on("click", undo);
 	}
 
+	function moveCamera(newPosition) {
+		// mover a camera para a nova posição
+		// de forma suave
+		let startPosition = camera.position.clone();
+		let startTime = Date.now();
+		let duration = 500; // duração da transição em milissegundos
+		function animate() {
+			let elapsed = Date.now() - startTime;
+			let t = Math.min(elapsed / duration, 1); // normaliza o tempo entre 0 e 1
+			camera.position.lerpVectors(startPosition, newPosition, t);
+			camera.lookAt(0, 0, 0); // sempre olhar para o centro do tabuleiro
+			if (t < 1) {
+				requestAnimationFrame(animate);
+			}
+		}
+		requestAnimationFrame(animate);
+
+	}
+
 	function newGameDialog() {
 		hideCheckmate();
-		var id = "newgame";
-		var dialogColor = WHITE;
-		var dialogLevel = 0;
+		var $dialog = $("#newGameDialog");
+		// show the dialog
+		$dialog.removeClass("hidden");
+		var $levelSelect = $("#difficultySelect");
+		// set the default level to 0
+		$levelSelect.val(0);
 
-		if ($("#" + id).length !== 0) {
-			return false;
-		}
-
-		var $newGame = $("<div>")
-			.attr("id", id)
-			.attr("title", "New Game")
-			.appendTo($("body"));
-
-		// buttonset div
-		var $radio = $("<p>").appendTo($newGame);
-		// first button for white
-		$('<input type="radio" id="white" name="color" checked="checked">')
-			.click(function () {
-				dialogColor = WHITE;
-			})
-			.appendTo($radio);
-		$('<label for="white">White</label>').appendTo($radio);
-
-		// second button for black
-		$('<input type="radio" id="black" name="color"/>')
-			.onclick(function () {
-				dialogColor = BLACK;
-			})
-			.appendTo($radio);
-		$('<label for="black">Black</label>').appendTo($radio);
-		// initialize the buttonset
-		$radio.buttonset();
-
-		// level selector
-
-		var $label = $("<label>")
-			.text("AI Strength:");
-		var $levelSelect = $('<select>')
-			.css("display", "block")
-			.appendTo($label)
-			.change(function (event) {
-				dialogLevel = $(event.currentTarget).val();
-			});
-		$("<p>").append($label).appendTo($newGame);
-
-		// add as much level configuration we have
-		for (var i = 0; i < levels.length; i++) {
-			$('<option>')
-				.val(i)
-				.text("level " + (i + 1))
-				.appendTo($levelSelect);
-		}
-		$newGame.dialog({
-			close: function (event, ui) {
-				$newGame.remove();
-			},
-			buttons: {
-				"Start": function () {
-					newGame(dialogColor, dialogLevel);
-					$(this).remove();
-				}
+		// set the default color to white
+		$("#startColorSelect").val(WHITE);
+		$levelSelect.on("change", function (event) {
+			var level = $(event.currentTarget).val();
+			if (levels[level-1] !== undefined) {
+				g_timeout = levels[level-1].timeout;
+				g_maxply = levels[level-1	].maxply;
 			}
+			// update the info text
+			$("#difficulty").text(level);
 		});
+		$("#startGameButton").on("click", function (event) {
+			var color = $("#white").val();
+			if (typeof color === "string"){
+				color = (color === "1") ? WHITE : BLACK;
+			}
+			var level = $("#difficultySelect").val();
+			// close the dialog
+			$dialog.addClass("hidden");
+			$("#gui").addClass("hidden");
+			$("#pause").remove();
+			$("#openMenu").removeClass("hidden");
+			$("#closeMenu").addClass("hidden");
+			// start a new game
+			newGame(color, level);
+		});
+		$("#cancelNewGameButton").on("click", function (event) {
+			// close the dialog
+			$dialog.addClass("hidden");
+			// remove the event listeners
+			$("#startGameButton").off("click");
+			$("#cancelNewGameButton").off("click");
+			$("#startColorSelect").off("change");
+			$("#difficultySelect").off("change");
+		});
+		$("#loadGameButton").on("click", function (event) {
+			// close the dialog
+			$dialog.addClass("hidden");
+			// remove the event listeners
+			$("#startGameButton").off("click");
+			$("#cancelNewGameButton").off("click");
+			$("#startColorSelect").off("change");
+			$("#difficultySelect").off("change");
+			loadDialog();
+		});
+
+
+
 	}
 	/*
 	 * GAME CONTROL
 	 */
 	function newGame(color, level) {
-
 		// change AI parameters according to level
 		if (levels[level] !== undefined) {
 			g_timeout = levels[level].timeout;
@@ -158,6 +161,7 @@
 		clearPGN();
 
 		redrawBoard();
+		// removeStandbyAnimation();
 
 		if (color === WHITE) {
 			g_playerWhite = true;
@@ -202,34 +206,9 @@
 		redrawBoard();
 	}
 
-
+	/* "clica" no botão de carregar */
 	function loadDialog() {
-		var id = "loadGame";
-		if ($("#" + id).length !== 0) {
-			return false;
-		}
-
-		var $loadGame = $("<div>")
-			.attr("id", id)
-			.attr("title", "Load Game")
-			.appendTo($("body"));
-
-		$('<input>')
-			.attr("type", "file")
-			.on('change',function (evt) {
-				load(evt);
-				$loadGame.remove();
-			})
-			.appendTo($loadGame);
-
-		$loadGame
-			.dialog({
-				minWidth: 420,
-				modal: true,
-				close: function (event, ui) {
-					$loadGame.remove();
-				}
-			});
+		$("#uploadFile").trigger("click");
 
 	}
 
@@ -245,8 +224,9 @@
 				loadPGN(contents);
 			};
 			reader.readAsText(file);
+
 		} else {
-			console.log("Failed to load file");
+			alert("Failed to load file");
 		}
 
 	}
@@ -404,6 +384,10 @@
 		}
 
 		redrawBoard();
+		// fechar o menu
+		$("#gui").addClass("hidden");
+		$("#openMenu").removeClass("hidden");
+		$("#pause").remove();
 	}
 
 	function clearPGN() {
@@ -486,18 +470,20 @@
 		$("#new-game").off("click");
 		$("#gameOverMessage").removeClass("checkmate stalemate");
 	}
-	// Aplica um filtro de escala de cinza,
+	// Aplica um filtro sepia
 	// exibe a mensagem "Checkmate" ou "Stalemate"
 	// no centro da tela, e exibe os botões de
 	// reiniciar ou voltar a jogada (undo)
 	function displayCheckmate(message) {
-		$("canvas").css("filter", "grayscale(100%)");
+		$("canvas").css("filter", "sepia(100%)");
+
 		// window.animateGameOver();
 		$("#newGame").on("click", newGameDialog);
 		$("#undoMove").on("click", undo);
 		let $overlay = $("#game-over-overlay");
 		$overlay.removeClass("hidden");
 		$("#gameOverMessage").text(message);
+
 		if (message === "Checkmate") {
 			$("#gameOverMessage").addClass("checkmate");
 		} else {
@@ -526,11 +512,45 @@
 		}
 	}
 
+	/* Exibir uma Animação enquanto o jogo não foi iniciado */
+	// function standbyAnimation(scene, renderer, camera) {
+	// 	let animate = () => {
+	// 		requestAnimationFrame(animate);
+	// 		camera.position.x = 50 * Math.cos(Date.now() / 1000);
+	// 		camera.position.z = 50 * Math.sin(Date.now() / 1000);
+	// 		camera.lookAt(scene.position);
+	// 		renderer.render(scene, camera);
+	// 	};
+	// 	animate();
+	// }
+
+	// function removeStandbyAnimation() {
+	// 	// remove the animation
+	// 	if (scene && renderer && camera) {
+	// 		requestAnimationFrame(() => {
+	// 			camera.position.set(0, 0, 100);
+	// 			camera.lookAt(scene.position);
+	// 			renderer.render(scene, camera);
+	// 		});
+	// 		// reset camera position
+	// 	}
+
+	// 	// remove the animation from the scene
+
+	// }
+
+	// window.removeStandbyAnimation = removeStandbyAnimation;
+
 	window.initGUI = initGUI;
 	window.initInfo = initInfo;
 	window.clearPGN = clearPGN;
 	window.addToPGN = addToPGN;
 	window.displayCheck = displayCheck;
 	window.newGame = newGame;
+	// window.standbyAnimation = standbyAnimation;
+	window.showNewGameOptions = function showNewGameOptions() {
+		$("#btn-newGame").trigger("click");
+	}
 
 })();
+

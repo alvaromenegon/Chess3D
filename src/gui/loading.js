@@ -75,7 +75,7 @@ var textures = {};
 		// carregar também as meshes
 		function loadGLB(url) {
 			const urlWithoutStatic = url.replace('static/', '');
-			const name = 'meshes/'+urlWithoutStatic.split('/').pop().replace('.glb', '');
+			const name = 'meshes/' + urlWithoutStatic.split('/').pop().replace('.glb', '');
 			const loader = new window.GLTFLoader();
 			loader.load(url, (gltf) => {
 				const mesh = gltf.scene.children[0];
@@ -133,12 +133,19 @@ var textures = {};
 		// control the progressBar
 		// and fire the onLoaded call back on completion
 		function checkLoad() {
-			$bar.update(loaded / resources.length);
+			updateBar(loaded / resources.length);
 			if (loaded === resources.length) {
 				setTimeout(onLoaded, 0.1);
 			}
 		}
 
+	}
+
+	function updateBar(p){
+		let $bar = $('#progressbar');
+		let $label = $('#progressbar-label');
+		$bar.val(p * 100);
+		$label.text(Math.round(p * 100) + '%');
 	}
 
 	function initGlow() {
@@ -243,10 +250,8 @@ var textures = {};
 		];
 
 		//jQuery object for tips
-		$tips = $('<div>')
-			.attr("id", "tips")
-			.css("color", "white")
-			.appendTo($('body'));
+		$tips = $('#tips');
+		
 
 		// how often tips changes (in ms)
 		var tipTiming = 5000;
@@ -275,79 +280,18 @@ var textures = {};
 
 	}
 
-	function initBar() {
-		// jQuery progress bar
-		$bar = $('<div>')
-			.attr("id", "progressbar")
-			.css("width", (LOADING_BAR_SCALE * 100) + "%")
-			.appendTo($('body'));
-
-		// jQuery progress bar label
-		var $label = $('<div>')
-			.attr("id", "progress-label")
-			.appendTo($bar);
-
-		// setting up the progressbar
-		$bar.progressbar({
-			value: false,
-			change: function () {
-				$label.text($bar.progressbar("value") + "%");
-			}
-		});
-
-		// avoid rounded corners
-		$bar.removeClass('ui-corner-all');
-		$bar.children().removeClass('ui-corner-all');
-		$bar.children().removeClass('ui-corner-left');
-
-
-		// that's where the progression happens
-		$bar.update = function (p) {
-			p = Math.round(p * 100);
-			$bar.progressbar("value", p);
-			// somehow need to constantly remove it
-			$bar.children().removeClass('ui-corner-right');
-		};
-
-		$bar.update(0);
-
-	}
-
-	function centering() {
-		$bar.position({
-			of: window,
-			my: "center center",
-			at: "center center"
-		});
-		$tips.position({
-			of: $bar,
-			my: "center bottom",
-			at: "center top-10"
-		});
-		$(glow).position({
-			of: window,
-			my: "center center",
-			at: "center center"
-		});
-
-		window.addEventListener('resize', centering);
-	}
 
 	function removeLoader() {
-		$bar.remove();
-		$tips.remove();
-		glow.remove();
-		window.removeEventListener('resize', centering);
-
+		$('#loading').remove();
 	}
 
 	window.onload = function () {
 		// the page is loaded
 		// start the resource loader
-		initGlow();
+		// initGlow();
 		initTips();
-		initBar();
-		centering();
+		// initBar();
+		// centering();
 
 		loadResources();
 		//$bar.update(1);
