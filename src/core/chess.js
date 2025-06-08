@@ -88,7 +88,7 @@ var levels = [
 	}
 
 	function initializeSceneLights() {
-		var spotlight = new THREE.SpotLight(0xFFFFFF, 100000.0);
+		var spotlight = new THREE.SpotLight(0xFFFFFF, 50000.0);
 		spotlight.position.set(0, 300, 0);
 		spotlight.angle = Math.PI / 2;
 		spotlight.exponent = 50.0;
@@ -105,7 +105,7 @@ var levels = [
 
 		var whiteLight = new THREE.PointLight(0xFFEEDD, 10000);
 		whiteLight.position.set(0, 0, 100);
-		var blackLight = new THREE.PointLight(0xFFEEDD, 1000);
+		var blackLight = new THREE.PointLight(0xFFEEDD, 10000);
 		blackLight.position.set(0, 0, -100);
 		return { spotlight, whiteLight, blackLight };
 	}
@@ -118,17 +118,10 @@ var levels = [
 		scene.add(whiteLight);
 		scene.add(blackLight);
 		scene.add(chessBoard);
-
-		// to make everything black in the background
-		scene.fog = new THREE.FogExp2(0x000000, 0.001);
-		// little reddish to fake a bit of bounce lighting
-		scene.add(new THREE.AmbientLight(0x330000));
 	}
 
 	function initializeRenderer(renderer, canvasWidth, canvasHeight) {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.gammaInput = true;
-		renderer.gammaOutput = true;
 		renderer.setSize(canvasWidth, canvasHeight);
 
 		if (SHADOW) {

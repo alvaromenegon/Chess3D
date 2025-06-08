@@ -228,106 +228,22 @@ function createChessBoard(size) {
 }
 
 function createFloor(size, chessboardSize) {
-	// The floor is a fake plane with a hole in it to allow
-	// for the fake reflexion trick to work
-	// so we build it vertices by vertices
+	const geometry = new THREE.PlaneGeometry(chessboardSize * 5, chessboardSize * 5);
 
-	// material
-	var tiling = 30 * size / 1000;
-	var material = new THREE.MeshPhongMaterial({
-		color: 0xffffff,
-		wireframe: WIREFRAME,
-		specular: 0xaaaaaa,
-		shininess: 30
+    let texture = cloneAndTileTexture(textures['texture/floor.jpg'], 30 * size / 1000);
 
-	});
-	var diff = textures['texture/floor.jpg'];
-	var spec = textures['texture/floor_S.jpg'];
-	var norm = textures['texture/floor_N.jpg'];
-	var light = textures['texture/fakeShadow.jpg'];
+    const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x004400, side: THREE.DoubleSide });
 
-	tileTextureAndRepeat(diff, tiling);
-	tileTextureAndRepeat(spec, tiling);
-	tileTextureAndRepeat(norm, tiling);
-	light.format = THREE.RGBFormat;
+    const floor = new THREE.Mesh(geometry, material);
 
-	material.map = diff;
-	material.normalMap = norm;
-	material.normalScale.set(0.6, 0.6);
-	material.specularMap = spec;
-	material.lightMap = light;
+    floor.rotation.x += Math.PI / 2;
 
-	// geometry
-	var halfBoard = chessboardSize / 2;
-	var halfSize = size / 2;
+    if (SHADOW) {
+        floor.receiveShadow = true;
+    }
 
-	var floorGeo = new THREE.BufferGeometry();
-
-	//adaptação para BufferGeometry
-	const positions = new Float32Array([
-		// outter vertices
-		-halfSize, 0, -halfSize,
-		halfSize, 0, -halfSize,
-		halfSize, 0, halfSize,
-		-halfSize, 0, halfSize,
-		// hole vertices
-		-halfBoard, 0, -halfBoard,
-		halfBoard, 0, -halfBoard,
-		halfBoard, 0, halfBoard,
-		-halfBoard, 0, halfBoard
-	]);
-
-
-
-	/*
-	 *        vertices         uvs-lightmap
-	 *      0-----------1     80-----------80   
-	 *      |\         /|      |\         /| 
-	 *      | \       / |      | \       / | 
-	 *      |  \     /  |      |  \     /  |
-	 *      |   4---5   |      |   0---0   |
-	 *      |   |   |   |      |   |   |   |
-	 *      |   7---6   |      |   0---0   |
-	 *      |  /     \  |      |  /     \  |
-	 *      | /       \ |      | /       \ |
-	 *      |/         \|      |/         \|
-	 *      3-----------2     80-----------80
-	 */
-
-	// all normals just points upward
-	// Normais (todos para cima)
-	const normals = Array(8).fill([0, 1, 0]).flat();
-	const indices = [
-		0, 4, 5, 0, 5, 1,
-		1, 5, 6, 1, 6, 2,
-		2, 6, 7, 2, 7, 3,
-		3, 7, 4, 3, 4, 0
-	];
-
-	const uvs1 = [
-		0, 0, 1, 0, 1, 1, 0, 1,
-		0.25, 0.25, 0.75, 0.25, 0.75, 0.75, 0.25, 0.75
-	];
-	const uvs2 = [
-		1, 1, 0, 1, 0, 0, 1, 0,
-		0.8, 0.8, 0.2, 0.8, 0.2, 0.2, 0.8, 0.2
-	];
-
-	floorGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-	floorGeo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-	floorGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs1, 2));
-	floorGeo.setAttribute('uv2', new THREE.Float32BufferAttribute(uvs2, 2));
-	floorGeo.setIndex(indices);
-	var floor = new THREE.Mesh(floorGeo, material);
-
-	var floor = new THREE.Mesh(floorGeo, material);
-
-	if (SHADOW) {
-		floor.receiveShadow = true;
-	}
-
-	floor.name = "floor";
-	return floor;
+    floor.name = "floor";
+    return floor;
 }
 
 // special highlighting materials
