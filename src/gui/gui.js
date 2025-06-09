@@ -64,25 +64,6 @@
 		$("#btn-undo").on("click", undo);
 	}
 
-	function moveCamera(newPosition) {
-		// mover a camera para a nova posição
-		// de forma suave
-		let startPosition = camera.position.clone();
-		let startTime = Date.now();
-		let duration = 500; // duração da transição em milissegundos
-		function animate() {
-			let elapsed = Date.now() - startTime;
-			let t = Math.min(elapsed / duration, 1); // normaliza o tempo entre 0 e 1
-			camera.position.lerpVectors(startPosition, newPosition, t);
-			camera.lookAt(0, 0, 0); // sempre olhar para o centro do tabuleiro
-			if (t < 1) {
-				requestAnimationFrame(animate);
-			}
-		}
-		requestAnimationFrame(animate);
-
-	}
-
 	function newGameDialog() {
 		hideCheckmate();
 		var $dialog = $("#newGameDialog");

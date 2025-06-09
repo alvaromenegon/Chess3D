@@ -580,6 +580,7 @@ var levels = [
 
 		// then if a piece was clicked, we select it
 		selectedPiece = pickedPiece;
+		// window.selectedPiece = selectedPiece;
 		if (selectedPiece !== null) {
 			selectedPiece.baseMaterial = selectedPiece.children[0].material;
 			selectedPiece.children[0].material = selectedMaterial[selectedPiece.color];

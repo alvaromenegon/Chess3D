@@ -22,16 +22,9 @@ function initPieceFactory() {
 	var tiling = 4;
 	var colors = [];
 	for (var c = 0; c < 2; c++) {
-		//Não funciona mais com a versão atualizada do THREE.js
-		// Utilizar a função utilitaria que faz os 2
-		// colors[c] = textures['texture/wood-'+c+'.jpg'].clone();
-		// colors[c].tile(tiling);
+
 		colors[c] = cloneAndTileTexture(textures['texture/wood-' + c + '.jpg'], tiling);
 	}
-	// var norm = textures['texture/wood_N.jpg'].clone();
-	// norm.tile(tiling);
-	// var spec = textures['texture/wood_S.jpg'].clone();
-	// spec.tile(tiling);
 	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
 	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
 
@@ -50,44 +43,25 @@ function initPieceFactory() {
 			wireframe: WIREFRAME
 		});
 		material.normalScale.set(0.3, 0.3);
-		// urls of geometry and lightmap
-		// var urlGeo = '3D/glb/'+name+'.glb';
+
 		var urlMesh = 'meshes/' + name;
-		// var urlAO = 'texture/' + name + '-ao.jpg';
 
 		var mesh = geometries[urlMesh].clone();
-		// no need to clone this texture
-		// since its pretty specific
-		// não funciona mais com a versão atualizada do THREE.js
-		// var light = textures[urlAO];
-		// light.format = THREE.LuminanceFormat;
 
-		// material.lightMap = light;
 		mesh.material = material;
 
-		// var mesh  = new THREE.Mesh(geo,material);
 		if (SHADOW) {
 			mesh.castShadow = true;
 			mesh.receiveShadow = true;
 		}
 		mesh.scale.set(size, size, size);
-		// we rotate pieces so they face each other (mostly relevant for knight)
 		// rotacionar apenas o cavalo porque é o único que precisa
 		// e a rotação original não estava funcionando
 		if (name === 'knight') {
 			mesh.rotation.z += (color == WHITE) ? Math.PI / 2 : -Math.PI / 2;
 		}
-		// mesh.rotation.y += (color == WHITE) ? -Math.PI / 2 : Math.PI / 2;
 
-		// we create the reflection
-		// it's a cloned with a negative scale on the Y axis
-		var reflexion = mesh.clone();
-		reflexion.scale.y *= -1;
-		reflexion.material = reflexion.material.clone();
-		reflexion.material.side = THREE.BackSide;
-		// debugger;
 		piece.add(mesh);
-		piece.add(reflexion);
 
 		piece.name = name;
 		piece.color = color;
@@ -107,32 +81,23 @@ function initCellFactory() {
 
 	// common textures
 	var diff;
-	// var norm = textures['texture/wood_N.jpg'].clone();
-	// norm.tile(tiling);
-	// var spec = textures['texture/wood_S.jpg'].clone();
-	// spec.tile(tiling);
+
 	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
 	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
 
 	for (var c = 0; c < 2; c++) {
 		diff = cloneAndTileTexture(textures['texture/wood-' + c + '.jpg'], tiling);
-		// diff = textures['texture/wood-'+c+'.jpg'].clone();
-		// diff.tile(tiling);
 
 		//common material
 		materials[c] = new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			specular: [0xAAAAAA, 0x444444][c],
-			shininess: 30.0,
+			shininess: 20.0,
 			wireframe: WIREFRAME,
-			transparent: true,
 			map: diff,
 			specularMap: spec,
 			normalMap: norm,
-			//blending: THREE.AdditiveBlending,
-			opacity: 0.5
 		});
-		//materials[c].normalScale.set(0.5,0.5);
 	}
 
 	function createCell(size, color) {
@@ -228,7 +193,7 @@ function createChessBoard(size) {
 }
 
 function createFloor(size, chessboardSize) {
-	const geometry = new THREE.PlaneGeometry(chessboardSize * 5, chessboardSize * 5);
+	const geometry = new THREE.PlaneGeometry(chessboardSize * 3, chessboardSize * 3);
 
     let texture = cloneAndTileTexture(textures['texture/floor.jpg'], 30 * size / 1000);
 
