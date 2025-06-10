@@ -8,22 +8,13 @@ var geometries = {};
 var textures = {};
 
 (function () {
-	var $bar, $tips;
-	var glow;
+	var $tips;
 
 	function loadResources() {
 		// counter
 		var loaded = 0;
 		// list of all mesh and texture
 		var resources = [
-			// 'static/3D/json/knight.json',
-			// 'static/3D/json/king.json',
-			// 'static/3D/json/queen.json',
-			// 'static/3D/json/bishop.json',
-			// 'static/3D/json/rook.json',
-			// 'static/3D/json/pawn.json',
-			// 'static/3D/json/board.json',
-			// 'static/3D/json/innerBoard.json',
 			'static/3D/glb/knight.glb',
 			'static/3D/glb/king.glb',
 			'static/3D/glb/queen.glb',
@@ -101,27 +92,15 @@ var textures = {};
 				}, undefined, function (error) {
 					console.error('An error happened while loading', url, error);
 				});
-			// THREE.ImageUtils.loadTexture(
-			// 	url,
-			// 	THREE.UVMapping(),
-			// 	function (texture) {
-			// 		textures[urlWithoutStatic] = texture;
-			// 		loaded++;
-			// 		checkLoad();
-			// 	}
-			// );
 		}
 
 		// load all the resources from the list
 		resources.forEach(function (url) {
 			switch (url.split('.').pop()) {
 				case 'glb':
-					loadGeomety(url);
+					// loadGeomety(url);
 					loadGLB(url);
 					break;
-				// case 'json' :
-				// 	loadJSON(url);
-				// 	break;
 				case 'jpg':
 					loadImage(url);
 					break;
@@ -148,79 +127,79 @@ var textures = {};
 		$label.text(Math.round(p * 100) + '%');
 	}
 
-	function initGlow() {
-		// create and set the green glow in the background
-		var size = window.innerWidth * LOADING_BAR_SCALE * 1.8;
-		glow = document.createElement('canvas');
-		glow.width = size;
-		glow.height = size;
-		document.body.appendChild(glow);
-		var ctx = glow.getContext('2d');
+	// function initGlow() {
+	// 	// create and set the green glow in the background
+	// 	var size = window.innerWidth * LOADING_BAR_SCALE * 1.8;
+	// 	glow = document.createElement('canvas');
+	// 	glow.width = size;
+	// 	glow.height = size;
+	// 	document.body.appendChild(glow);
+	// 	var ctx = glow.getContext('2d');
 
-		// make it oval
-		glow.style.width = size + "px";
-		glow.style.height = Math.round(size / 2) + "px";
-
-
-		var requestId;
-		function animate() {
-			var dt = getDelta();
-			update(dt);
-			requestId = window.requestAnimationFrame(animate);
-		}
-
-		function update(dt) {
-
-			ctx.clearRect(0, 0, size, size);
-
-			// for the pulse effect
-			var cycle = Math.cos(Date.now() / 1000 * Math.PI);
-			var maxRadius = size / 2.5;
-
-			function lerp(a, b, p) {
-				return a + (b - a) * p;
-			}
-
-			var amplitude = maxRadius * 0.015;
-			var sizeOffset = cycle * amplitude;
-			var radius = maxRadius - amplitude + sizeOffset;
-			var saturation = lerp(70, 100, (cycle + 1) / 2);
+	// 	// make it oval
+	// 	glow.style.width = size + "px";
+	// 	glow.style.height = Math.round(size / 2) + "px";
 
 
-			var grd = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, radius);
-			// fake a non linear gradient
-			grd.addColorStop(0, 'hsla(90,' + saturation + '%,50%,0.5)');
-			grd.addColorStop(0.125, 'hsla(90,' + saturation + '%,50%,0.3828125)');
-			grd.addColorStop(0.25, 'hsla(90,' + saturation + '%,50%,0.28125)');
-			grd.addColorStop(0.375, 'hsla(90,' + saturation + '%,50%,0.1953125)');
-			grd.addColorStop(0.5, 'hsla(90,' + saturation + '%,50%,0.125)');
-			grd.addColorStop(0.75, 'hsla(90,' + saturation + '%,50%,0.03125)');
-			grd.addColorStop(1, 'hsla(90,' + saturation + '%,50%,0.0)');
+	// 	var requestId;
+	// 	function animate() {
+	// 		var dt = getDelta();
+	// 		update(dt);
+	// 		requestId = window.requestAnimationFrame(animate);
+	// 	}
 
-			// draw the gradient
-			ctx.rect(0, 0, size, size);
-			ctx.fillStyle = grd;
-			ctx.fill();
-		}
+	// 	function update(dt) {
 
-		glow.remove = function () {
-			window.cancelAnimationFrame(requestId);
-			this.parentNode.removeChild(this);
-		};
+	// 		ctx.clearRect(0, 0, size, size);
 
-		var oldTime;
-		function getDelta() {
-			var now = Date.now();
-			if (oldTime === undefined) {
-				oldTime = now;
-			}
-			var delta = (now - oldTime) / 1000;
-			oldTime = now;
-			return delta;
-		}
+	// 		// for the pulse effect
+	// 		var cycle = Math.cos(Date.now() / 1000 * Math.PI);
+	// 		var maxRadius = size / 2.5;
 
-		animate();
-	}
+	// 		function lerp(a, b, p) {
+	// 			return a + (b - a) * p;
+	// 		}
+
+	// 		var amplitude = maxRadius * 0.015;
+	// 		var sizeOffset = cycle * amplitude;
+	// 		var radius = maxRadius - amplitude + sizeOffset;
+	// 		var saturation = lerp(70, 100, (cycle + 1) / 2);
+
+
+	// 		var grd = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, radius);
+	// 		// fake a non linear gradient
+	// 		grd.addColorStop(0, 'hsla(90,' + saturation + '%,50%,0.5)');
+	// 		grd.addColorStop(0.125, 'hsla(90,' + saturation + '%,50%,0.3828125)');
+	// 		grd.addColorStop(0.25, 'hsla(90,' + saturation + '%,50%,0.28125)');
+	// 		grd.addColorStop(0.375, 'hsla(90,' + saturation + '%,50%,0.1953125)');
+	// 		grd.addColorStop(0.5, 'hsla(90,' + saturation + '%,50%,0.125)');
+	// 		grd.addColorStop(0.75, 'hsla(90,' + saturation + '%,50%,0.03125)');
+	// 		grd.addColorStop(1, 'hsla(90,' + saturation + '%,50%,0.0)');
+
+	// 		// draw the gradient
+	// 		ctx.rect(0, 0, size, size);
+	// 		ctx.fillStyle = grd;
+	// 		ctx.fill();
+	// 	}
+
+	// 	glow.remove = function () {
+	// 		window.cancelAnimationFrame(requestId);
+	// 		this.parentNode.removeChild(this);
+	// 	};
+
+	// 	var oldTime;
+	// 	function getDelta() {
+	// 		var now = Date.now();
+	// 		if (oldTime === undefined) {
+	// 			oldTime = now;
+	// 		}
+	// 		var delta = (now - oldTime) / 1000;
+	// 		oldTime = now;
+	// 		return delta;
+	// 	}
+
+	// 	animate();
+	// }
 
 
 	function initTips() {
@@ -286,15 +265,8 @@ var textures = {};
 	}
 
 	window.onload = function () {
-		// the page is loaded
-		// start the resource loader
-		// initGlow();
 		initTips();
-		// initBar();
-		// centering();
-
 		loadResources();
-		//$bar.update(1);
 	};
 
 	window.removeLoader = removeLoader;

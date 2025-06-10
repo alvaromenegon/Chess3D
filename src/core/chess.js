@@ -209,7 +209,7 @@ var levels = [
 	function UIPlayMove(move, silent) {
 		// we play the move here by 
 		// adding it to the png list (for display)
-		addToPGN(move);
+		pgnUtils.addToPGN(move);
 		// and to the move list (for undos)
 		g_allMoves[g_allMoves.length] = move;
 		// committing the move
@@ -589,26 +589,19 @@ var levels = [
 	}
 
 
-
 	// all resources (meshs and textures) are loaded
 	function onLoaded() {
-		//bar.container.style.display = "none";
 		removeLoader();
 
 		init();
-		// if (DEBUG) {
-		window.scene = scene;
-		window.renderer = renderer;
-		window.camera = camera;
-		// }
+		if (DEBUG) {
+			window.scene = scene;
+			window.renderer = renderer;
+			window.camera = camera;
+		}
 		redrawBoard();
-		// standbyAnimation(scene, renderer, camera);
 		showNewGameOptions();
-		// newGame(WHITE);
 		animate();
-
-		//setTimeout(loadFEN('8/Q5P1/8/8/8/8/8/2K1k3 w - -'),2000);
-
 	}
 
 	window.SearchAndRedraw = SearchAndRedraw;

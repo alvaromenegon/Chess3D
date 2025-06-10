@@ -27,7 +27,7 @@
 
   <div id="newGameDialog" class="chess-menu hidden">
     <h2>New Game</h2>
-    <hr />
+
     <div id="gameMode">
       <label for="startColorSelect">Select Color:</label>
       <input type="radio" id="white" name="colorRadio" value="1" checked>
@@ -40,9 +40,11 @@
       <label for="difficultySelect">Difficulty: <span id='difficulty'>1</span></label>
       <input type="range" id="difficultySelect" min="1" max="10" step="1" value="0">
     </div>
-    <button class="btn" id="startGameButton">Start Game</button>
-    <button class="btn" id="loadGameButton">Load Game</button>
-    <button class="btn" id="cancelNewGameButton">Cancel</button>
+    <div class="gui-body">
+      <button class="btn" id="startGameButton">Start Game</button>
+      <button class="btn" id="loadGameButton">Load Game</button>
+      <button class="btn" id="cancelNewGameButton">Cancel</button>
+    </div>
   </div>
 
   <div id="gui" class="chess-menu hidden">
@@ -62,11 +64,6 @@
       <button class="btn" id="btn-saveGame">Save Game</button>
     </div>
   </div>
-  <!-- <div id="gui-body">
-      <button class="btn" id="btn-newGame">New Game</button>
-      <button class="btn" id="btn-loadGame">Load Game</button>
-      <button class="btn" id="btn-saveGame">Save Game</button>
-    </div> -->
   <button id="openMenu" class="btn hidden">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill"
       viewBox="0 0 16 16">

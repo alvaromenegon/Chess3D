@@ -6,6 +6,8 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import $ from 'jquery';
+import { pgnUtils } from './utils/pgnUtils.js';
+import Piece from './core/Piece.js';
 
 /*
 * Carregar os módulos do THREE.js
@@ -25,6 +27,11 @@ window.ShaderPass = ShaderPass;
 window.$ = $;
 window.jQuery = $;
 
+/* Mover algumas das funções em closure para módulos JS */
+/* E mover como funções globais para compatibilidade */
+window.pgnUtils = pgnUtils;
+window.Piece = Piece;
+
 function loadScripts(path) {
     const script = document.createElement('script');
     script.src = path;
@@ -36,8 +43,6 @@ function loadScripts(path) {
 
 loadScripts('./src/globals.js'); //variaveis globais
 loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
-loadScripts('./src/lib/jquery/jquery-1.9.1.js'); // Carregar o jQuery 
-loadScripts('./src/lib/jquery/jquery-ui-1.10.3.custom.min.js'); // Carregar o jQuery UI
 loadScripts('./src/utils/three-extend.js');
 loadScripts('./src/gui/loading.js');
 loadScripts('./src/core/Cell.js');
