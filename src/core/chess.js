@@ -364,12 +364,9 @@ var levels = [
 		return g_backgroundEngineValid;
 	}
 
-
 	/*
 	 * BOARD
 	 */
-
-
 	function updateBoard3D() {
 		// list all the pieces
 		board3D = [];
@@ -425,8 +422,6 @@ var levels = [
 			scene.add(piece);
 		});
 	}
-
-
 
 	function redrawBoard() {
 		validMoves = GenerateValidMoves();

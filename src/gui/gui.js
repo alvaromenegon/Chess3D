@@ -108,9 +108,9 @@
 		// set the default color to white
 		$whiteRadio.prop("checked", true);
 		$whiteRadio.on("change", changeStartPlayer);
-		$blackRadio.on("change", changeStartPlayer);		
+		$blackRadio.on("change", changeStartPlayer);
 
-	 }
+	}
 
 	function initializeDifficulty() {
 		var $levelSelect = $("#difficultySelect");
@@ -136,7 +136,7 @@
 		$dialog.removeClass("hidden");
 		initializeDifficulty();
 		initializeStartColor();
-		handleNewGameClick($dialog, newGame);
+		handleNewGameClick($dialog, newGame, $("#white").is(":checked") ? WHITE : BLACK);
 		handleCancelClick();
 		handleLoadGameClick($dialog);
 	}
@@ -150,6 +150,7 @@
 	 * GAME CONTROL
 	 */
 	function newGame(color, level) {
+		console.log("newGame called with color:", color, "and level:", level);
 		// change AI parameters according to level
 		if (levels[level] !== undefined) {
 			g_timeout = levels[level].timeout;
@@ -164,7 +165,6 @@
 
 		g_allMoves = [];
 		clearPGN();
-
 		redrawBoard();
 		// removeStandbyAnimation();
 
@@ -180,7 +180,6 @@
 		}
 		showGameButtons();
 	}
-
 
 	function changeStartPlayer(event) {
 		g_playerWhite = $("#white").is(":checked");
@@ -306,7 +305,9 @@
 	// exibe a mensagem "Checkmate" ou "Stalemate"
 	// no centro da tela, e exibe os botões de
 	// reiniciar ou voltar a jogada (undo)
-	function displayCheckmate(message) {
+	// Verifica quem está em cheeck (jogador ou IA)
+	function displayCheckmate(message, player) {
+		// if (player === WHITE && g_playerWhite) {
 		$("canvas").css("filter", "sepia(100%)");
 
 		// window.animateGameOver();
@@ -321,6 +322,7 @@
 		} else {
 			$("#gameOverMessage").addClass("stalemate");
 		}
+		// }
 	}
 
 	function displayCheck() {
@@ -354,7 +356,7 @@
 
 })();
 
-function handleNewGameClick($dialog, newGame) {
+function handleNewGameClick($dialog, newGame, color=WHITE, level=0) {
 	$("#startGameButton").on("click", function (event) {
 		var level = $("#difficultySelect").val();
 		// close the dialog
@@ -363,7 +365,6 @@ function handleNewGameClick($dialog, newGame) {
 		$("#pause").remove();
 		$("#openMenu").removeClass("hidden");
 		$("#closeMenu").addClass("hidden");
-		// start a new game
-		newGame(g_playerWhite, level);
+		newGame(color, level);
 	});
 }
