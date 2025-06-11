@@ -356,7 +356,7 @@
 
 })();
 
-function handleNewGameClick($dialog, newGame, color=WHITE, level=0) {
+function handleNewGameClick($dialog, newGame, color = WHITE, level = 0) {
 	$("#startGameButton").on("click", function (event) {
 		var level = $("#difficultySelect").val();
 		// close the dialog
@@ -367,4 +367,73 @@ function handleNewGameClick($dialog, newGame, color=WHITE, level=0) {
 		$("#closeMenu").addClass("hidden");
 		newGame(color, level);
 	});
+}
+
+function updateBar(p) {
+	let $bar = $('#progressbar');
+	let $label = $('#progressbar-label');
+	$bar.val(p * 100);
+	$label.text(Math.round(p * 100) + '%');
+}
+
+function initTips() {
+	// list of tips
+	var tips = [
+		"Aggregating wood fibers",
+		"Generating pieces census report",
+		"Testing board resistance",
+		"Generating Matrix 8x8",
+		"Answering Queen's request",
+		"Carving a princess for the knight",
+		"Sanding the Bishop",
+		"Enrolling Pawns",
+		"Generating cheat sheet",
+		"Mating the king",
+		"Planting virtual trees",
+		"Asking Deep Blue for advice",
+		"Nominating Bishops",
+		"Dubbing Knights",
+		"Crowning the King",
+		"Waxing chessboard",
+		"Evaluating the idea of an hexagonal board, and rejecting it",
+		"Gathering extra vertices (just in case)",
+		"Trimming edges",
+		"Intimidating opponent",
+		"Learning the rules"
+	];
+
+	//jQuery object for tips
+	let $tips = $('#tips');
+
+
+	// how often tips changes (in ms)
+	var tipTiming = 100;
+
+
+	$tips.update = function () {
+		var self = this;
+		if (tips.length > 0) {
+			var index = Math.floor(Math.random() * tips.length);
+
+			var sentence = tips[index];
+			tips.splice(index, 1);
+			$(this).text(sentence + "...");
+		}
+		this.timer = setTimeout(function () { self.update(); }, tipTiming);
+	};
+
+	// this little ugliness is just to clear the timer
+	// automagically on .remove()
+	var tipsRemove = $tips.remove;
+	$tips.remove = function () {
+		clearTimeout(this.timer);
+		tipsRemove.call(this);
+	};
+	$tips.update();
+
+}
+
+
+window.removeLoader = () => {
+	$('#loading').remove();
 }

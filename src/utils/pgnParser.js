@@ -7,15 +7,6 @@
 		var WHITE = 1;
 		var BLACK = 0;
 	*/
-	function Move(piece,color,from,to,promotion,result,str) {
-		this.piece     = piece ? piece : "P";
-		this.color     = color;
-		this.from      = from;
-		this.to        = to;
-		this.promotion = promotion;
-		this.result    = result;
-		this.str       = str;
-	}
 
 	String.prototype.removeBrackets = function(open,close) {
 		var count = 0;

@@ -9,6 +9,8 @@ import $ from 'jquery';
 import { pgnUtils } from './utils/pgnUtils.js';
 import Piece from './core/Piece.js';
 import Cell from './core/Cell.js';
+import Move from './core/Move.js';
+import { cloneAndTileTexture, cloneTexture, tileTextureAndRepeat } from './utils/three-extend.js';
 
 /*
 * Carregar os módulos do THREE.js
@@ -31,11 +33,32 @@ window.jQuery = $;
 /* Mover algumas das funções em closure para módulos JS */
 /* E mover como funções globais para compatibilidade */
 window.pgnUtils = pgnUtils;
+window.cloneAndTileTexture = cloneAndTileTexture;
+window.tileTextureAndRepeat = tileTextureAndRepeat;
+window.cloneTexture = cloneTexture;
+
 
 /* Classes */
 window.Piece = Piece;
 window.Cell = Cell;
+window.Move = Move;
 
+/* Variáveis globais */
+window.WIREFRAME = false;
+window.SHADOW = false;
+window.BLACK = 0;
+window.WHITE = 1;
+window.FEEDBACK = 2;
+window.DEBUG = false;
+window.BOARD_SIZE = 100;
+window.PIECE_SIZE = 0.4;
+window.FLOOR_SIZE = 2000;
+window.COLS = 8;
+window.ROWS = 8;
+window.LOADING_BAR_SCALE = 0.3;
+
+// Função para carregar scripts de forma síncrona
+// Isso é necessário para garantir que os scripts sejam carregados na ordem correta
 function loadScripts(path) {
     const script = document.createElement('script');
     script.src = path;
@@ -45,10 +68,8 @@ function loadScripts(path) {
 }
 // carregar o restante dos scripts
 
-loadScripts('./src/globals.js'); //variaveis globais
 loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
-loadScripts('./src/utils/three-extend.js');
-loadScripts('./src/gui/loading.js');
+loadScripts('./src/core/loading.js'); // Carregar o carregamento de recursos
 loadScripts('./src/rendering/factory.js');
 loadScripts('./src/utils/pgnParser.js');
 loadScripts('./src/gui/gui.js');

@@ -1,13 +1,9 @@
-// ECMAScript 5 strict mode
-/* jshint globalstrict: true*/
-/* global SHADOW,onOBJLoaded,THREE,console,BLACK,WHITE,WIREFRAME */
-
 /* 
  * few extension or modification to some three.js functionnality 
  * often to avoid some repetitive tasks
  */
 // Para a versão do Three 176 serão usadas funções em vez de protótipos
-function cloneTexture(texture){    
+function cloneTexture(texture){   
     var newTexture = texture.clone();
     newTexture.needsUpdate = true;
     return newTexture;
@@ -29,3 +25,5 @@ function cloneAndTileTexture(texture, factor) {
 	tileTextureAndRepeat(newTexture, factor);
 	return newTexture;
 }
+
+export { cloneTexture, tileTextureAndRepeat, cloneAndTileTexture };

@@ -59,8 +59,7 @@ class PgnUtils {
             var pieceIdx = (color | piece) << 4;
 
             while (g_pieceList[pieceIdx] !== 0) {
-                debugger;
-                startList.push(Cell.fromIndex(FormatSquare(g_pieceList[pieceIdx])));
+                startList.push(Cell.fromPosition(FormatSquare(g_pieceList[pieceIdx])));
                 pieceIdx++;
             }
 

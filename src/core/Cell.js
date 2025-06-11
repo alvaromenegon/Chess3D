@@ -110,10 +110,6 @@ class Cell {
 		);
 	}
 
-
-
-
-
 	// private
 	static #getPositionFromCoordinates(x, y) {
 		return String.fromCharCode(x + a) + (7 - y + 1);

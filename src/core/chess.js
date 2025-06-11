@@ -205,7 +205,6 @@ var levels = [
 		renderer.render(scene, camera);
 	}
 
-
 	function UIPlayMove(move, silent) {
 		// we play the move here by 
 		// adding it to the png list (for display)
@@ -291,7 +290,6 @@ var levels = [
 
 			// we play the actual move
 			UIPlayMove(move, false);
-
 
 			// make the engine play (setTimeOut is used probably to wait for the last postMessage to kick in)
 			// maybe creating a callback from the worker would be better (more reliable)
