@@ -26,24 +26,25 @@
   </div>
 
   <div id="newGameDialog" class="chess-menu hidden">
-    <h2>New Game</h2>
-
-    <div id="gameMode">
+    <p class="game-title">Chess 3D</p>
+    <div class="gui-body">
+      <h2 class="text-center">New Game</h2>
       <label for="startColorSelect">Select Color:</label>
       <input type="radio" id="white" name="colorRadio" value="1" checked>
       <label for="white">White</label>
+
       <input type="radio" id="black" name="colorRadio" value="0">
       <label for="black">Black</label>
 
-    </div>
-    <div>
-      <label for="difficultySelect">Difficulty: <span id='difficulty'>1</span></label>
-      <input type="range" id="difficultySelect" min="1" max="10" step="1" value="0">
-    </div>
-    <div class="gui-body">
-      <button class="btn" id="startGameButton">Start Game</button>
-      <button class="btn" id="loadGameButton">Load Game</button>
-      <button class="btn" id="cancelNewGameButton">Cancel</button>
+      <div>
+        <label for="difficultySelect">Difficulty: <span id='difficulty'>1</span></label>
+        <input type="range" id="difficultySelect" min="1" max="10" step="1" value="0">
+      </div>
+      <div class="column-center">
+        <button class="btn" id="startGameButton">Start Game</button>
+        <button class="btn" id="loadGameButton">Load Game</button>
+        <button class="btn" id="cancelNewGameButton">Cancel</button>
+      </div>
     </div>
   </div>
 

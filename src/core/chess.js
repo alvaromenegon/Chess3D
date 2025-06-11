@@ -246,8 +246,8 @@ var levels = [
 			return false;
 		}
 		// get the positions
-		var start = new Cell(piece.cell);
-		var end = new Cell(cell.name);
+		var start = Cell.fromIndex(piece.cell);
+		var end = Cell.fromPosition(cell.name);
 
 		var startSquare = MakeSquare(start.y, start.x);
 		var endSquare = MakeSquare(end.y, end.x);
@@ -408,15 +408,15 @@ var levels = [
 		var cell;
 		board3D.forEach(function (piece) {
 			scene.remove(piece);
-			cell = new Cell(piece.cell);
+			cell = Cell.fromIndex(piece.cell);
 		});
 	}
 
 	function fillBoard() {
 		// place all the pieces on the board
 		var cell;
-		board3D.forEach(function (piece, index) {
-			cell = new Cell(index);
+		board3D.forEach((piece, index) => {
+			cell = Cell.fromIndex(index);
 			piece.position.copy(cell.getWorldPosition());
 			piece.cell = index;
 			scene.add(piece);
@@ -522,8 +522,8 @@ var levels = [
 
 		// if a piece is selected and a cell is picked
 		if (selectedPiece !== null && pickedCell !== null) {
-			var start = new Cell(selectedPiece.cell);
-			var end = new Cell(pickedCell.name);
+			var start = Cell.fromIndex(selectedPiece.cell);
+			var end = Cell.fromPosition(pickedCell.name);
 
 			var move = null;
 			// we check if it would be a valid move

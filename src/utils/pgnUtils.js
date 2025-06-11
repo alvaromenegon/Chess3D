@@ -59,7 +59,8 @@ class PgnUtils {
             var pieceIdx = (color | piece) << 4;
 
             while (g_pieceList[pieceIdx] !== 0) {
-                startList.push(new Cell(FormatSquare(g_pieceList[pieceIdx])));
+                debugger;
+                startList.push(Cell.fromIndex(FormatSquare(g_pieceList[pieceIdx])));
                 pieceIdx++;
             }
 
@@ -93,8 +94,8 @@ class PgnUtils {
             // here we should have a list of starting square
             // only one should make a valid move 
             // paired with the provided destination
-
-            var end = new Cell(move.to);
+            console.log('move to:',move.to);
+            var end = Cell.fromPosition(move.to);
             var endSquare = MakeSquare(end.y, end.x);
 
             var promotion = (move.promotion) ? pieces[move.promotion.substr(1)].promo : undefined; // remove the "="

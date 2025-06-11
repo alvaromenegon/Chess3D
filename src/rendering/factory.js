@@ -141,7 +141,7 @@ function createChessBoard(size) {
 
 	for (var i = 0; i < ROWS * COLS; i++) {
 		var row = Math.floor(i / COLS);
-		cell = new Cell(i);
+		cell = Cell.fromIndex(i);
 		square = createCell(cellSize, 1 - (i + row) % 2);
 		square.position.copy(cell.getWorldPosition());
 		square.name = cell.position;

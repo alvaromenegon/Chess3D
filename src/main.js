@@ -8,6 +8,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import $ from 'jquery';
 import { pgnUtils } from './utils/pgnUtils.js';
 import Piece from './core/Piece.js';
+import Cell from './core/Cell.js';
 
 /*
 * Carregar os módulos do THREE.js
@@ -30,7 +31,10 @@ window.jQuery = $;
 /* Mover algumas das funções em closure para módulos JS */
 /* E mover como funções globais para compatibilidade */
 window.pgnUtils = pgnUtils;
+
+/* Classes */
 window.Piece = Piece;
+window.Cell = Cell;
 
 function loadScripts(path) {
     const script = document.createElement('script');
@@ -45,7 +49,6 @@ loadScripts('./src/globals.js'); //variaveis globais
 loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
 loadScripts('./src/utils/three-extend.js');
 loadScripts('./src/gui/loading.js');
-loadScripts('./src/core/Cell.js');
 loadScripts('./src/rendering/factory.js');
 loadScripts('./src/utils/pgnParser.js');
 loadScripts('./src/gui/gui.js');
