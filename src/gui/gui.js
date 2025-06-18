@@ -38,6 +38,7 @@
 		// to display Chc
 		$info = $("<div>")
 			.attr("id", "info")
+			.addClass("hidden")
 			.text("Check")
 			.appendTo($("body"))
 	}
@@ -109,7 +110,6 @@
 		$whiteRadio.prop("checked", true);
 		$whiteRadio.on("change", changeStartPlayer);
 		$blackRadio.on("change", changeStartPlayer);
-
 	}
 
 	function initializeDifficulty() {
@@ -130,18 +130,21 @@
 
 
 	function newGameDialog() {
+		g_playerWhite = true; // default to white
 		hideCheckmate();
 		var $dialog = $("#newGameDialog");
 		// show the dialog
 		$dialog.removeClass("hidden");
 		initializeDifficulty();
 		initializeStartColor();
-		handleNewGameClick($dialog, newGame, $("#white").is(":checked") ? WHITE : BLACK);
+		handleNewGameClick($dialog, newGame);
 		handleCancelClick();
 		handleLoadGameClick($dialog);
 	}
 
 	function showGameButtons() {
+		displayPlayerTurn(g_playerWhite);
+		$("#difficultyLevel").text("0");
 		$("#game-info").removeClass("hidden");
 		$("#openMenu").removeClass("hidden");
 	}
@@ -149,8 +152,8 @@
 	/*
 	 * GAME CONTROL
 	 */
-	function newGame(color, level) {
-		console.log("newGame called with color:", color, "and level:", level);
+	function newGame(level) {
+		console.log(g_playerWhite);
 		// change AI parameters according to level
 		if (levels[level] !== undefined) {
 			g_timeout = levels[level].timeout;
@@ -168,16 +171,14 @@
 		redrawBoard();
 		// removeStandbyAnimation();
 
-		if (color === WHITE) {
-			g_playerWhite = true;
+		if (g_playerWhite) {
 			camera.position.x = 0;
 			camera.position.z = 100; // camera on white side
 		} else {
-			g_playerWhite = false;
 			SearchAndRedraw();
 			camera.position.x = 0;
 			camera.position.z = -100; // camera on black side
-		}
+		}		
 		showGameButtons();
 	}
 
@@ -235,7 +236,8 @@
 				loadPGN(contents);
 			};
 			reader.readAsText(file);
-
+			clearPGN();
+			showGameButtons();			
 		} else {
 			alert("Failed to load file");
 		}
@@ -306,27 +308,48 @@
 	// no centro da tela, e exibe os botões de
 	// reiniciar ou voltar a jogada (undo)
 	// Verifica quem está em cheeck (jogador ou IA)
-	function displayCheckmate(message, player) {
-		// if (player === WHITE && g_playerWhite) {
-		$("canvas").css("filter", "sepia(100%)");
+	function displayCheckmate(message) {
+		// verificar se o jogador venceu ou perdeu
+		if (whoIsInCheck()) {
+			//Player lost
+			$("canvas").css("filter", "sepia(100%)");
+			$("#game-over-overlay").removeClass("hidden");
+			$("#game-over-overlay").addClass("lose");
+			$("#game-over-overlay").removeClass("win");
+		} else {
+			// Player won
+			$("canvas").css("filter", "sepia(0%)");
+			$("#game-over-overlay").removeClass("hidden");
+			$("#game-over-overlay").addClass("win");
+			$("#game-over-overlay").removeClass("lose");
+		}
 
-		// window.animateGameOver();
 		$("#newGame").on("click", newGameDialog);
 		$("#undoMove").on("click", undo);
-		let $overlay = $("#game-over-overlay");
-		$overlay.removeClass("hidden");
-		$("#gameOverMessage").text(message);
+		$("#gameOverMessage").text(message)
 
 		if (message === "Checkmate") {
 			$("#gameOverMessage").addClass("checkmate");
 		} else {
 			$("#gameOverMessage").addClass("stalemate");
 		}
-		// }
+	}
+	
+	function whoIsInCheck() {
+		const playerColor = g_playerWhite ? WHITE : BLACK;
+		const turn = g_toMove === 8 ? WHITE : BLACK;
+		if (g_inCheck) {
+			if (turn === playerColor) {				
+				return true; // player is in check
+			} else {				
+				return false; // AI is in check
+			}
+		} else {
+			throw new Error("No check detected");
+		}
 	}
 
 	function displayCheck() {
-		console.log('is in check:', g_inCheck);
 		if (validMoves.length === 0) {
 			// no valid moves means checkmate or stalemate
 			if (g_inCheck) {
@@ -336,12 +359,20 @@
 			}
 			return;
 		} else if (g_inCheck) {
+			$info.text(whoIsInCheck()? "You are in check!" : "Opponent is in check!");
 			$info.removeClass('hidden');
-
 		} else {
 			$info.addClass('hidden');
 		}
+	}
 
+	function displayPlayerTurn() {
+		console.log('color to play: ', Boolean(g_toMove) ? 'white' : 'black');
+		if (Boolean(g_toMove)) {
+			$("#turn").text("White");
+		} else {
+			$("#turn").text("Black");
+		}
 	}
 
 	window.initGUI = initGUI;
@@ -353,19 +384,22 @@
 	window.showNewGameOptions = function showNewGameOptions() {
 		$("#btn-newGame").trigger("click");
 	}
+	window.displayPlayerTurn = displayPlayerTurn;
 
 })();
 
-function handleNewGameClick($dialog, newGame, color = WHITE, level = 0) {
+function handleNewGameClick($dialog, newGame) {
+	// const color = $("white").is(":checked") ? WHITE : BLACK;
 	$("#startGameButton").on("click", function (event) {
-		var level = $("#difficultySelect").val();
+		const level = $("#difficultySelect").val();
 		// close the dialog
 		$dialog.addClass("hidden");
 		$("#gui").addClass("hidden");
 		$("#pause").remove();
 		$("#openMenu").removeClass("hidden");
 		$("#closeMenu").addClass("hidden");
-		newGame(color, level);
+		$("#difficultyLevel").text(level);
+		newGame(level);
 	});
 }
 

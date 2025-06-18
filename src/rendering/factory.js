@@ -14,19 +14,25 @@
  */
 
 "use strict";
-var geometries = {};
-var textures = {};
+const resourceManager = window.resourceManager;
+if (!resourceManager) {
+	throw new Error('ResourceManager not initialized. ');
+}
+
 function initPieceFactory() {
+	const normTexture = resourceManager.getTexture('wood_N.jpg');
+	const specTexture = resourceManager.getTexture('wood_S.jpg');
 
 	// common textures
 	var tiling = 4;
 	var colors = [];
 	for (var c = 0; c < 2; c++) {
 
-		colors[c] = cloneAndTileTexture(textures['texture/wood-' + c + '.jpg'], tiling);
+		colors[c] = cloneAndTileTexture(resourceManager.getTexture('wood-' + c + '.jpg'), tiling);
 	}
-	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
-	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
+
+	var norm = cloneAndTileTexture(normTexture, tiling);
+	var spec = cloneAndTileTexture(specTexture, tiling);
 
 	function createPiece(name, color) {
 		var size = BOARD_SIZE / COLS * PIECE_SIZE;
@@ -44,9 +50,7 @@ function initPieceFactory() {
 		});
 		material.normalScale.set(0.3, 0.3);
 
-		var urlMesh = 'meshes/' + name;
-
-		var mesh = geometries[urlMesh].clone();
+		var mesh = resourceManager.getMesh(name).clone();
 
 		mesh.material = material;
 
@@ -74,19 +78,19 @@ function initPieceFactory() {
 }
 
 function initCellFactory() {
-
+	const normTexture = resourceManager.getTexture('wood_N.jpg');
+	const specTexture = resourceManager.getTexture('wood_S.jpg');
 	var materials = [];
 	var tiling = 2;
-
 
 	// common textures
 	var diff;
 
-	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
-	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
+	var norm = cloneAndTileTexture(normTexture, tiling);
+	var spec = cloneAndTileTexture(specTexture, tiling);
 
 	for (var c = 0; c < 2; c++) {
-		diff = cloneAndTileTexture(textures['texture/wood-' + c + '.jpg'], tiling);
+		diff = cloneAndTileTexture(resourceManager.getTexture('wood-' + c + '.jpg'), tiling);
 
 		//common material
 		materials[c] = new THREE.MeshPhongMaterial({
@@ -133,6 +137,8 @@ function initCellFactory() {
 
 
 function createChessBoard(size) {
+	const normTexture = resourceManager.getTexture('wood_N.jpg');
+	const specTexture = resourceManager.getTexture('wood_S.jpg');
 	// contains everything that makes the board
 	var lChessBoard = new THREE.Object3D();
 
@@ -150,7 +156,7 @@ function createChessBoard(size) {
 	}
 
 	// some fake inner environment color for reflexion
-	var innerBoard = geometries['meshes/innerBoard'].clone();
+	var innerBoard = resourceManager.getMesh('innerBoard').clone();
 	innerBoard.material = new THREE.MeshBasicMaterial({
 		color: 0x783e12
 	});
@@ -159,13 +165,11 @@ function createChessBoard(size) {
 	/// board borders
 	var tiling = 6;
 
-	var wood = cloneAndTileTexture(textures['texture/wood-0.jpg'], tiling);
-	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
-	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
+	var wood = cloneAndTileTexture(resourceManager.getTexture('wood-0.jpg'), tiling);
+	var spec = cloneAndTileTexture(specTexture, tiling);
+	var norm = cloneAndTileTexture(normTexture, tiling);
 
-	// var geo = geometries['3D/glb/board.glb'].clone();
-	// geo.computeBoundingBox();
-	var board = geometries['meshes/board'].clone();
+	var board = resourceManager.getMesh('board').clone();
 	board.material =
 		new THREE.MeshPhongMaterial({
 			color: 0xffffff,
@@ -192,37 +196,35 @@ function createChessBoard(size) {
 	return lChessBoard;
 }
 
-function createFloor(size, chessboardSize) {
+function createFloor(chessboardSize) {
 	const geometry = new THREE.PlaneGeometry(chessboardSize * 3, chessboardSize * 3);
+	const texture = cloneAndTileTexture(resourceManager.getTexture('floor.jpg'), 4);
+	const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x004400, side: THREE.DoubleSide });
+	const floor = new THREE.Mesh(geometry, material);
+	floor.rotation.x += Math.PI / 2;
 
-    let texture = cloneAndTileTexture(textures['texture/floor.jpg'], 30 * size / 1000);
+	if (SHADOW) {
+		floor.receiveShadow = true;
+	}
 
-    const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x004400, side: THREE.DoubleSide });
-
-    const floor = new THREE.Mesh(geometry, material);
-
-    floor.rotation.x += Math.PI / 2;
-
-    if (SHADOW) {
-        floor.receiveShadow = true;
-    }
-
-    floor.name = "floor";
-    return floor;
+	floor.name = "floor";
+	return floor;
 }
 
 // special highlighting materials
 var validCellMaterial = null;
 function createValidCellMaterial() {
+	const normTexture = resourceManager.getTexture('wood_N.jpg');
+	const specTexture = resourceManager.getTexture('wood_S.jpg');
 	validCellMaterial = [];
 	var tiling = 2;
 	// common textures
 	var diff;
-	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
-	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
+	var norm = cloneAndTileTexture(normTexture, tiling);
+	var spec = cloneAndTileTexture(specTexture, tiling);
 
 	for (var c = 0; c < 2; c++) {
-		var diff = cloneAndTileTexture(textures['texture/wood-1.jpg'], tiling);
+		var diff = cloneAndTileTexture(resourceManager.getTexture('wood-1.jpg'), tiling);
 
 		//common material
 		validCellMaterial[c] = new THREE.MeshPhongMaterial({
@@ -234,28 +236,21 @@ function createValidCellMaterial() {
 			specularMap: spec,
 			normalMap: norm
 		});
-		//materials[c].normalScale.set(0.5,0.5);
 	}
 }
 
 var selectedMaterial = null;
 function createSelectedMaterial() {
+	const normTexture = resourceManager.getTexture('wood_N.jpg');
+	const specTexture = resourceManager.getTexture('wood_S.jpg');
 	selectedMaterial = [];
 	var tiling = 4;
 	// common textures
-	var diff;
-	// var norm = textures['texture/wood_N.jpg'].clone();
-	// norm.tile(tiling);
-	// var spec = textures['texture/wood_S.jpg'].clone();
-	// spec.tile(tiling);
-	var norm = cloneAndTileTexture(textures['texture/wood_N.jpg'], tiling);
-	var spec = cloneAndTileTexture(textures['texture/wood_S.jpg'], tiling);
+	var norm = cloneAndTileTexture(normTexture, tiling);
+	var spec = cloneAndTileTexture(specTexture, tiling);
 
 	for (var c = 0; c < 2; c++) {
-
-		// diff = textures['texture/wood-1.jpg'].clone();
-		// diff.tile(tiling);
-		diff = cloneAndTileTexture(textures['texture/wood-1.jpg'], tiling);
+		const diff = cloneAndTileTexture(resourceManager.getTexture('wood-1.jpg'), tiling);
 
 		//common material
 		selectedMaterial[c] = new THREE.MeshPhongMaterial({
@@ -272,5 +267,4 @@ function createSelectedMaterial() {
 		});
 		selectedMaterial[c].normalScale.set(0.3, 0.3);
 	}
-
 }

@@ -1,106 +1,232 @@
-// ECMAScript 5 strict mode
-/* jshint globalstrict: true*/
-/* global THREE, $, document, window,  console */
-/* global onLoaded, LOADING_BAR_SCALE,ROWS,COLS,PIECE_SIZE, BOARD_SIZE, FLOOR_SIZE, WIREFRAME, DEBUG, Cell, WHITE, BLACK, FEEDBACK, SHADOW */
-"use strict";
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { updateBar } from '../gui/gui.module';
 
-var geometries = {};
-var textures = {};
-
-window.onload = () => {
-	// export default function loadResources(onLoaded){
-	initTips();
-	// counter
-	var loaded = 0;
-	// list of all mesh and texture
-	const resources = [
-		'static/3D/glb/knight.glb',
-		'static/3D/glb/king.glb',
-		'static/3D/glb/queen.glb',
-		'static/3D/glb/bishop.glb',
-		'static/3D/glb/rook.glb',
-		'static/3D/glb/pawn.glb',
-		'static/3D/glb/board.glb',
-		'static/3D/glb/innerBoard.glb',
-		'static/texture/wood-0.jpg',
-		'static/texture/wood-1.jpg',
-		'static/texture/wood_N.jpg',
-		'static/texture/wood_S.jpg',
-		'static/texture/knight-ao.jpg',
-		'static/texture/rook-ao.jpg',
-		'static/texture/king-ao.jpg',
-		'static/texture/bishop-ao.jpg',
-		'static/texture/queen-ao.jpg',
-		'static/texture/pawn-ao.jpg',
-		'static/texture/floor.jpg',
-		'static/texture/floor_N.jpg',
-		'static/texture/floor_S.jpg',
-		'static/texture/fakeShadow.jpg'
+class ResourceManager {
+	/* int */ #loaded;
+	/* List<String> */ #RESOURCES = [
+		'3D/glb/knight.glb',
+		'3D/glb/king.glb',
+		'3D/glb/queen.glb',
+		'3D/glb/bishop.glb',
+		'3D/glb/rook.glb',
+		'3D/glb/pawn.glb',
+		'3D/glb/board.glb',
+		'3D/glb/innerBoard.glb',
+		'texture/wood-0.jpg',
+		'texture/wood-1.jpg',
+		'texture/wood_N.jpg',
+		'texture/wood_S.jpg',
+		'texture/knight-ao.jpg',
+		'texture/rook-ao.jpg',
+		'texture/king-ao.jpg',
+		'texture/bishop-ao.jpg',
+		'texture/queen-ao.jpg',
+		'texture/pawn-ao.jpg',
+		'texture/floor.jpg',
+		'texture/floor_N.jpg',
+		'texture/floor_S.jpg',
+		'texture/fakeShadow.jpg'
 	];
+	constructor() {
+		this.meshes = {};
+		this.textures = {};
+		this.#loaded = 0;
+	}
 
-	/**
-	 * A versão atualizada do THREE.js não suporta mais o THREE.JSONLoader
-	 * Então, em vez disso, vamos usar o GLTFLoader para carregar os modelos 3D,
-	 * e armazenar a mesh carregada no objeto `geometries`.
-	 * @see https://threejs.org/docs/index.html#examples/en/loaders/GLTFLoader
-	 * @param {*} url caminho do arquivo a ser carregado
-	 */
-	function loadGLB(url) {
-		const urlWithoutStatic = url.replace('static/', '');
-		const name = 'meshes/' + urlWithoutStatic.split('/').pop().replace('.glb', '');
-		const loader = new window.GLTFLoader();
-		loader.load(url, (gltf) => {
-			const mesh = gltf.scene.children[0];
-			mesh.name = name;
-			geometries[name] = mesh;
-			loaded++;
-			checkLoad();
-		}, undefined, function (error) {
-			console.error('An error happened while loading', url, error);
+	initWithResources = (meshes, textures) => {
+		if (meshes && textures) {
+			if (typeof meshes !== 'object' || typeof textures !== 'object') {
+				throw new Error('Meshes and textures must be objects');
+			}
+			this.#loaded = Object.keys(meshes).length + Object.keys(textures).length;
+			if (this.#loaded !== this.#RESOURCES.length) {
+				console.warn('Loaded resources do not match expected count');
+			}
+		}
+		this.meshes = meshes;
+		this.textures = textures;
+	}
+
+	getMesh(name) {
+		return this.meshes[name] || null;
+	}
+	getTexture(name) {
+		return this.textures[name] || null;
+	}
+	setMesh(name, mesh) {
+		this.meshes[name] = mesh;
+	}
+	setTexture(name, texture) {
+		this.textures[name] = texture;
+	}
+	getMeshes() {
+		return this.meshes;
+	}
+	getTextures() {
+		return this.textures;
+	}
+
+	#loadGLB(name, url) {
+		const loader = new GLTFLoader();
+		return new Promise((resolve, reject) => {
+			loader.load(`static/${url}`, (gltf) => {
+				const mesh = gltf.scene.children[0];
+				mesh.name = name;
+				this.setMesh(name, mesh);
+				this.#checkLoad(++this.#loaded);
+				resolve(mesh);
+			}, undefined, (error) => {
+				console.error('An error happened while loading', url, error);
+				reject(error);
+			});
 		});
 	}
 
-
-	// for loading texture
-	function loadImage(url) {
-		const urlWithoutStatic = url.replace('static/', ''); //Remover o static apenas ao salvar no objeto
-		new window.THREE.TextureLoader().load(url,
-			(texture) => {
-				// store the texture in the textures object
-				textures[urlWithoutStatic] = texture;
-				loaded++;
-				checkLoad();
-			}, undefined, function (error) {
+	#loadTexture(name, url) {
+		return new Promise((resolve, reject) => {
+			new THREE.TextureLoader().load(`static/${url}`, (texture) => {
+				this.setTexture(name, texture);
+				this.#checkLoad(++this.#loaded);
+				resolve(texture);
+			}, undefined, (error) => {
 				console.error('An error happened while loading', url, error);
+				reject(error);
 			});
+		});
+
 	}
 
-	// load all the resources from the list
-	resources.forEach(function (url) {
-		switch (url.split('.').pop()) {
-			case 'glb':
-				// loadGeomety(url);
-				loadGLB(url);
-				break;
-			case 'jpg':
-				loadImage(url);
-				break;
-			default:
-				throw 'invalid resource';
+	#checkLoad() {
+		updateBar(this.#loaded / this.#RESOURCES.length);
+		if (this.#loaded === this.#RESOURCES.length) {
+			setTimeout(window.onLoaded, 0.1);
+			/* compatibility with old code */
+			// window.geometries = geometries;
+			// window.textures = textures;
 		}
-	});
+	}
 
-	// control the progressBar
-	// and fire the onLoaded call back on completion
-	function checkLoad() {
-		updateBar(loaded / resources.length);
-		if (loaded === resources.length) {
-			setTimeout(onLoaded, 0.1);
-		}
+	loadResources = async () => {
+		this.#RESOURCES.forEach((url) => {
+			switch (url.split('.').pop()) {
+				case 'glb':
+					const meshName = url.split('/').pop().replace('.glb', '');
+					this.#loadGLB(meshName, url);
+					break;
+				case 'jpg':
+					const textureName = url.split('/').pop();
+					this.#loadTexture(textureName, url);
+					break;
+				default:
+					throw new Error('Invalid resource type: ' + url);
+			}
+		});
+		return {
+			meshes: this.meshes,
+			textures: this.textures
+		};
 	}
 
 }
 
+// export default function loadResources() {
+// 	// initTips();
+// 	// counter
+// 	var loaded = 0;
+// 	// list of all mesh and texture
+// 	const resources = [
+// 		'3D/glb/knight.glb',
+// 		'3D/glb/king.glb',
+// 		'3D/glb/queen.glb',
+// 		'3D/glb/bishop.glb',
+// 		'3D/glb/rook.glb',
+// 		'3D/glb/pawn.glb',
+// 		'3D/glb/board.glb',
+// 		'3D/glb/innerBoard.glb',
+// 		'texture/wood-0.jpg',
+// 		'texture/wood-1.jpg',
+// 		'texture/wood_N.jpg',
+// 		'texture/wood_S.jpg',
+// 		'texture/knight-ao.jpg',
+// 		'texture/rook-ao.jpg',
+// 		'texture/king-ao.jpg',
+// 		'texture/bishop-ao.jpg',
+// 		'texture/queen-ao.jpg',
+// 		'texture/pawn-ao.jpg',
+// 		'texture/floor.jpg',
+// 		'texture/floor_N.jpg',
+// 		'texture/floor_S.jpg',
+// 		'texture/fakeShadow.jpg'
+// 	];
+
+// 	/**
+// 	 * A versão atualizada do THREE.js não suporta mais o THREE.JSONLoader
+// 	 * Então, em vez disso, vamos usar o GLTFLoader para carregar os modelos 3D,
+// 	 * e armazenar a mesh carregada no objeto `geometries`.
+// 	 * @see https://threejs.org/docs/index.html#examples/en/loaders/GLTFLoader
+// 	 * @param {*} url caminho do arquivo a ser carregado
+// 	 */
+// 	function loadGLB(url) {
+// 		const name = 'meshes/' + url.split('/').pop().replace('.glb', '');
+// 		const loader = new window.GLTFLoader();
+// 		loader.load(`static/${url}`, (gltf) => {
+// 			const mesh = gltf.scene.children[0];
+// 			mesh.name = name;
+// 			geometries[name] = mesh;
+// 			loaded++;
+// 			checkLoad();
+// 		}, undefined, function (error) {
+// 			console.error('An error happened while loading', url, error);
+// 		});
+// 	}
+
+
+// 	// for loading texture
+// 	function loadImage(url) {
+// 		new window.THREE.TextureLoader().load(`static/${url}`,
+// 			(texture) => {
+// 				// store the texture in the textures object
+// 				textures[url] = texture;
+// 				loaded++;
+// 				checkLoad();
+// 			}, undefined, function (error) {
+// 				console.error('An error happened while loading', url, error);
+// 			});
+// 	}
+
+// 	// load all the resources from the list
+// 	resources.forEach(function (url) {
+// 		switch (url.split('.').pop()) {
+// 			case 'glb':
+// 				loadGLB(url);
+// 				break;
+// 			case 'jpg':
+// 				loadImage(url);
+// 				break;
+// 			default:
+// 				throw 'invalid resource';
+// 		}
+// 	});
+
+// 	// control the progressBar
+// 	// and fire the onLoaded call back on completion
+// 	function checkLoad() {
+// 		updateBar(loaded / resources.length);
+// 		if (loaded === resources.length) {
+// 			setTimeout(window.onLoaded, 0.1);
+// 			/* compatibility with old code */
+// 			window.geometries = geometries;
+// 			window.textures = textures;
+// 		}
+// 	}
+// 	return {
+// 		geometries: geometries,
+// 		textures: textures,
+// 	}
+// }
+
+export { ResourceManager };
 // function initGlow() {
 // 	// create and set the green glow in the background
 // 	var size = window.innerWidth * LOADING_BAR_SCALE * 1.8;

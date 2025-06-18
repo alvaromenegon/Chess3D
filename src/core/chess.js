@@ -156,7 +156,7 @@ var levels = [
 
 		// we let chessBoard in global scope to use it for picking
 		chessBoard = createChessBoard(BOARD_SIZE);
-		var floor = createFloor(FLOOR_SIZE, BOARD_SIZE);
+		var floor = createFloor(BOARD_SIZE);
 
 		//floor.position.y = -5*BOARD_SIZE/100;
 		floor.position.y = chessBoard.height;
@@ -218,6 +218,7 @@ var levels = [
 		if (!silent) {
 			redrawBoard();
 		}
+		displayPlayerTurn();
 	}
 
 	function checkPromotion(piece, yPosition) {
@@ -421,12 +422,16 @@ var levels = [
 		});
 	}
 
-	function redrawBoard() {
+	function redrawBoard(isNewGame = false) {
 		validMoves = GenerateValidMoves();
-		clearBoard();
+		/* avoid calling unnecessary functions */
+		if (!isNewGame) {
+			displayCheck();
+			clearBoard();
+		}
 		updateBoard3D();
 		fillBoard();
-		displayCheck();
+
 	}
 
 
@@ -592,7 +597,7 @@ var levels = [
 			window.renderer = renderer;
 			window.camera = camera;
 		}
-		redrawBoard();
+		redrawBoard(true);
 		showNewGameOptions();
 		animate();
 	}

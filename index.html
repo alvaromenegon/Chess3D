@@ -4,7 +4,6 @@
 <head>
   <title>CHESS 3D</title>
   <link href="static/css/styles.css" rel="stylesheet" type="text/css">
-  <!-- <link href="static/css/dark-hive/jquery-ui-1.10.3.custom.css" rel="stylesheet"> -->
   <!-- Módulo Principal - adaptação ao THREE atualizado via NPM -->
   <script type="module" src="./src/main.js"></script>
 </head>
@@ -73,6 +72,8 @@
     </svg>
   </button>
   <div id="game-info" class="hidden">
+    <p>Turn: <span id="turn"></span></p>
+    <p>Difficulty: <span id="difficultyLevel"></span></p>
     <label for="promotionSelect">Promotion:</label>
     <select id="promotionSelect">
       <option value="queen">Queen</option>

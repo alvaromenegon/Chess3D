@@ -57,7 +57,7 @@ class Cell {
 			return new Cell(position, coordinates.x, coordinates.y);
 
 		} else {
-			throw new Error("Invalid position format");
+			throw new Error("Invalid position format: "+position);
 		}
 	}
 

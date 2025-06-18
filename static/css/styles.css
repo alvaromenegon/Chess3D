@@ -8,7 +8,7 @@ canvas {
     box-sizing: border-box;
 }
 
-canvas{
+canvas {
     transition: all 0.7s ease-in-out;
 }
 
@@ -18,7 +18,6 @@ body {
     font-size: 1em;
     overflow: visible;
 }
-
 :root {
     --primary-color: #d4c2a5;
     --secondary-color: #888888;
@@ -28,7 +27,8 @@ body {
     --title-color: #3c2f2f;
 }
 
-.btn, button.ui-button {
+.btn,
+button.ui-button {
     color: #eeeeee;
     padding: 0.5rem 0.75rem;
     margin: 0.25em;
@@ -57,15 +57,6 @@ body {
     border-radius: 12px 12px 0 0;
     background-color: var(--primary-color);
     border-bottom: var(--default-border)
-}
-.input{
-    width: 75%;
-    padding: 0.5em;
-    border-radius: 8px;
-    border: var(--default-border);
-    background-color: var(--primary-color);
-    color: #333;
-    font-size: 1em;
 }
 
 #openMenu {
@@ -103,10 +94,21 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9));
     color: white;
     font-size: 2em;
     z-index: 13;
+}
+
+#game-over-overlay.win {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
+}
+
+#game-over-overlay.lose {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9));
+}
+
+#game-over-overlay.tie {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
 }
 
 #game-over-overlay.hidden {
@@ -122,6 +124,10 @@ body {
 
 #gameOverMessage.checkmate {
     color: #ff4444;
+}
+
+.win>#gameOverMessage.checkmate {
+    color: #258f25;
 }
 
 #gameOverMessage.stalemate {
@@ -212,15 +218,23 @@ select {
     cursor: pointer;
 }
 
-.chess-menu, .ui-dialog {
+.game-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--title-color);
+    text-align: center;
+}
+
+.chess-menu,
+.ui-dialog {
     position: absolute;
-    top:50%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: #f1ede5;
-    border: 2px solid #8b5e3c;
+    border: 3px solid #8b5e3c;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px 12px rgba(0, 0, 0, 0.2);
     font-family: 'Georgia', serif;
     color: var(--title-color);
     width: 35%;
@@ -234,27 +248,67 @@ select {
     transform: translateX(0);
 }
 
-.chess-menu h2 {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-    text-align: center;
-    border-bottom: 1px solid #8b5e3c;
-    padding-bottom: 5px;
+.chess-menu .game-title {
+    text-shadow: -5px 5px 6px #8b5e3cb7;
+    border-bottom: 2px solid #8b5e3c;
+    padding-bottom: 10px;
+    margin: 0;
+    margin-top: 2dvh;
 }
 
-#newGameDialog{
+.text-center {
+    text-align: center;
+}
+
+#newGameDialog {
     z-index: 15;
 }
 
+.row-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.column-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
 #difficultySelect {
-    width: 75%;
-    border: var(--default-border);
-    background-color: var(--primary-color);
-    color: #333;
-    font-size: 1em;
+    width: 100%;
+    border: none;
     margin-bottom: 10px;
     box-sizing: border-box;
 }
+
+input[type="radio"] {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+#white::before,
+#black::before {
+    content: "";
+    color: #ffffff;
+    width: 10px;
+    height: 10px;
+    display: block;
+    border: var(--default-border);
+    border-radius: 50%;
+}
+
+#white:checked::before,
+#black:checked::before {
+    background-color: var(--title-color);
+}
+
 
 #loading {
     display: flex;
@@ -276,10 +330,30 @@ select {
     border: 2px solid #8b5e3c;
 }
 
-.gui-body{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1em;
+.gui-body {
+    padding: 0.75em;
+}
+
+@media (max-width: 768px) {
+
+    .chess-menu,
+    .ui-dialog {
+        width: 90%;
+        height: auto;
+        max-height: 90%;
+        overflow-y: auto;
+    }
+
+    #game-info {
+        width: 100%;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+    }
+
+    #gameOverMessage {
+        font-size: 1.5em;
+    }
+
 }

@@ -11,7 +11,8 @@ import Piece from './core/Piece.js';
 import Cell from './core/Cell.js';
 import Move from './core/Move.js';
 import { cloneAndTileTexture, cloneTexture, tileTextureAndRepeat } from './utils/three-extend.js';
-
+// import { createChessBoard, createFloor, createSelectedMaterial, createValidCellMaterial,initCellFactory,initPieceFactory } from './rendering/factory.js';
+import  { ResourceManager } from './core/loading.js';
 /*
 * Carregar os módulos do THREE.js
 * e armazenas como objetos de window
@@ -32,16 +33,24 @@ window.jQuery = $;
 
 /* Mover algumas das funções em closure para módulos JS */
 /* E mover como funções globais para compatibilidade */
+window.resourceManager = new ResourceManager();
 window.pgnUtils = pgnUtils;
 window.cloneAndTileTexture = cloneAndTileTexture;
 window.tileTextureAndRepeat = tileTextureAndRepeat;
 window.cloneTexture = cloneTexture;
-
+/*
+window.createChessBoard = createChessBoard;
+window.createFloor = createFloor;
+window.createSelectedMaterial = createSelectedMaterial;
+window.createValidCellMaterial = createValidCellMaterial;
+window.initCellFactory = initCellFactory;
+window.initPieceFactory = initPieceFactory;*/
 
 /* Classes */
 window.Piece = Piece;
 window.Cell = Cell;
 window.Move = Move;
+
 
 /* Variáveis globais */
 window.WIREFRAME = false;
@@ -66,10 +75,20 @@ function loadScripts(path) {
     script.deferrer = true;
     document.head.appendChild(script);
 }
+
+window.onload = () => {
+    // Carregar os recursos necessários
+    // loadResources();    
+    window.resourceManager.loadResources().then(({meshes,textures}) => {
+        console.log('Recursos carregados:', meshes, textures);
+        /* compatibilidade com o código antigo */
+        window.geometries = meshes;
+        window.textures = textures;
+    });
+}
 // carregar o restante dos scripts
 
 loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
-loadScripts('./src/core/loading.js'); // Carregar o carregamento de recursos
 loadScripts('./src/rendering/factory.js');
 loadScripts('./src/utils/pgnParser.js');
 loadScripts('./src/gui/gui.js');
