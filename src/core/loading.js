@@ -34,20 +34,6 @@ class ResourceManager {
 		this.#loaded = 0;
 	}
 
-	initWithResources = (meshes, textures) => {
-		if (meshes && textures) {
-			if (typeof meshes !== 'object' || typeof textures !== 'object') {
-				throw new Error('Meshes and textures must be objects');
-			}
-			this.#loaded = Object.keys(meshes).length + Object.keys(textures).length;
-			if (this.#loaded !== this.#RESOURCES.length) {
-				console.warn('Loaded resources do not match expected count');
-			}
-		}
-		this.meshes = meshes;
-		this.textures = textures;
-	}
-
 	getMesh(name) {
 		return this.meshes[name] || null;
 	}
@@ -129,102 +115,6 @@ class ResourceManager {
 	}
 
 }
-
-// export default function loadResources() {
-// 	// initTips();
-// 	// counter
-// 	var loaded = 0;
-// 	// list of all mesh and texture
-// 	const resources = [
-// 		'3D/glb/knight.glb',
-// 		'3D/glb/king.glb',
-// 		'3D/glb/queen.glb',
-// 		'3D/glb/bishop.glb',
-// 		'3D/glb/rook.glb',
-// 		'3D/glb/pawn.glb',
-// 		'3D/glb/board.glb',
-// 		'3D/glb/innerBoard.glb',
-// 		'texture/wood-0.jpg',
-// 		'texture/wood-1.jpg',
-// 		'texture/wood_N.jpg',
-// 		'texture/wood_S.jpg',
-// 		'texture/knight-ao.jpg',
-// 		'texture/rook-ao.jpg',
-// 		'texture/king-ao.jpg',
-// 		'texture/bishop-ao.jpg',
-// 		'texture/queen-ao.jpg',
-// 		'texture/pawn-ao.jpg',
-// 		'texture/floor.jpg',
-// 		'texture/floor_N.jpg',
-// 		'texture/floor_S.jpg',
-// 		'texture/fakeShadow.jpg'
-// 	];
-
-// 	/**
-// 	 * A versão atualizada do THREE.js não suporta mais o THREE.JSONLoader
-// 	 * Então, em vez disso, vamos usar o GLTFLoader para carregar os modelos 3D,
-// 	 * e armazenar a mesh carregada no objeto `geometries`.
-// 	 * @see https://threejs.org/docs/index.html#examples/en/loaders/GLTFLoader
-// 	 * @param {*} url caminho do arquivo a ser carregado
-// 	 */
-// 	function loadGLB(url) {
-// 		const name = 'meshes/' + url.split('/').pop().replace('.glb', '');
-// 		const loader = new window.GLTFLoader();
-// 		loader.load(`static/${url}`, (gltf) => {
-// 			const mesh = gltf.scene.children[0];
-// 			mesh.name = name;
-// 			geometries[name] = mesh;
-// 			loaded++;
-// 			checkLoad();
-// 		}, undefined, function (error) {
-// 			console.error('An error happened while loading', url, error);
-// 		});
-// 	}
-
-
-// 	// for loading texture
-// 	function loadImage(url) {
-// 		new window.THREE.TextureLoader().load(`static/${url}`,
-// 			(texture) => {
-// 				// store the texture in the textures object
-// 				textures[url] = texture;
-// 				loaded++;
-// 				checkLoad();
-// 			}, undefined, function (error) {
-// 				console.error('An error happened while loading', url, error);
-// 			});
-// 	}
-
-// 	// load all the resources from the list
-// 	resources.forEach(function (url) {
-// 		switch (url.split('.').pop()) {
-// 			case 'glb':
-// 				loadGLB(url);
-// 				break;
-// 			case 'jpg':
-// 				loadImage(url);
-// 				break;
-// 			default:
-// 				throw 'invalid resource';
-// 		}
-// 	});
-
-// 	// control the progressBar
-// 	// and fire the onLoaded call back on completion
-// 	function checkLoad() {
-// 		updateBar(loaded / resources.length);
-// 		if (loaded === resources.length) {
-// 			setTimeout(window.onLoaded, 0.1);
-// 			/* compatibility with old code */
-// 			window.geometries = geometries;
-// 			window.textures = textures;
-// 		}
-// 	}
-// 	return {
-// 		geometries: geometries,
-// 		textures: textures,
-// 	}
-// }
 
 export { ResourceManager };
 // function initGlow() {

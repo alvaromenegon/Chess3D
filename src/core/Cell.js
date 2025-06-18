@@ -65,7 +65,7 @@ class Cell {
 	 * Cria uma instância de Cell a partir de coordenadas x e y.
 	 * @param {number} x - A coordenada x (0-7).
 	 * @param {number} y - A coordenada y (0-7).
-	 * @returns {} Uma nova instância de Cell.
+	 * @returns {Cell} Uma nova instância de Cell.
 	 */
 	static fromIndex(index) {
 		if (index >= 0 && index < ROWS * COLS) {

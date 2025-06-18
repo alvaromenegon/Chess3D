@@ -113,11 +113,11 @@ var levels = [
 	function initializeScene(floor, spotlight, whiteLight, blackLight) {
 		// create and fill the scene with default stuff
 		scene = new THREE.Scene();
-		scene.add(floor);
-		scene.add(spotlight);
-		scene.add(whiteLight);
-		scene.add(blackLight);
-		scene.add(chessBoard);
+		scene.add(floor)
+			.add(spotlight)
+			.add(whiteLight)
+			.add(blackLight)
+			.add(chessBoard);
 	}
 
 	function initializeRenderer(renderer, canvasWidth, canvasHeight) {
@@ -150,10 +150,6 @@ var levels = [
 		camera = initializeCamera(canvasRatio);
 		var { spotlight, whiteLight, blackLight } = initializeSceneLights();
 
-		// generate createPiece and createCell functions
-		initPieceFactory();
-		initCellFactory();
-
 		// we let chessBoard in global scope to use it for picking
 		chessBoard = createChessBoard(BOARD_SIZE);
 		var floor = createFloor(BOARD_SIZE);
@@ -170,9 +166,6 @@ var levels = [
 		initGUI();
 		// Check feedback
 		initInfo();
-
-		createValidCellMaterial();
-		createSelectedMaterial();
 
 		// picking event
 		document.addEventListener('mousedown', onDocumentMouseDown, false);
@@ -396,7 +389,7 @@ var levels = [
 				}
 
 				if (pieceName !== null) {
-					board3D[x + y * COLS] = createPiece(pieceName, pieceColor);
+					board3D[x + y * COLS] = window.createPiece(pieceName, pieceColor);
 				}
 			}
 		}
@@ -544,7 +537,7 @@ var levels = [
 			if (pickedCell !== null && move !== null) {
 				selectedCell = pickedCell;
 				selectedCell.baseMaterial = selectedCell.material;
-				selectedCell.material = validCellMaterial[selectedCell.color];
+				selectedCell.material = window.getValidCellMaterial(selectedCell.color);
 				canvas.style.cursor = "pointer";
 			}
 		}
@@ -581,7 +574,7 @@ var levels = [
 		// window.selectedPiece = selectedPiece;
 		if (selectedPiece !== null) {
 			selectedPiece.baseMaterial = selectedPiece.children[0].material;
-			selectedPiece.children[0].material = selectedMaterial[selectedPiece.color];
+			selectedPiece.children[0].material = window.getSelectedMaterial(selectedPiece.color);
 			//selectedPiece.children[1].material = selectedMaterial[selectedPiece.color];
 		}
 	}
