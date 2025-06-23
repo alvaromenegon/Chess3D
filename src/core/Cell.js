@@ -1,3 +1,4 @@
+const a = "a".charCodeAt(0);
 /**
  * Classe Cell representa uma posição no tabuleiro de xadrez.
  * Ex: a1, b4, h8, etc.
@@ -21,7 +22,6 @@
  * cell.equals("a1"); // true
  * cell.equals(0, 0); // true
  */
-const a = "a".charCodeAt(0);
 class Cell {
 	constructor(position, x, y) {
 		// position, x and y

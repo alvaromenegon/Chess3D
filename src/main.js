@@ -73,8 +73,8 @@ function loadScripts(path) {
 }
 
 window.onload = () => { 
-    window.resourceManager.loadResources().then(({ meshes, textures }) => {
-        console.log('Recursos carregados:', meshes, textures);        
+    window.resourceManager.loadResources().then(() => {
+        console.log('Recursos carregados');        
     }).catch((error) => {
         alert('Erro ao carregar recursos. Verifique o console para mais detalhes.');
         console.error('Erro ao carregar recursos:', error);
@@ -83,8 +83,6 @@ window.onload = () => {
 // carregar o restante dos scripts
 
 loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
-// loadScripts('./src/rendering/factory.js');
-loadScripts('./src/utils/pgnParser.js');
 loadScripts('./src/gui/gui.js');
 loadScripts('./src/core/chess.js');
 
