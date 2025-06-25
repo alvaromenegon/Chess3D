@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import ChessGui from '../gui/gui.module';
+import ChessGui from '../gui/gui';
 
 class ResourceManager {
 	/* int */ #loaded;
@@ -28,10 +28,11 @@ class ResourceManager {
 		'texture/floor_S.jpg',
 		'texture/fakeShadow.jpg'
 	];
-	constructor() {
+	constructor(callback) {
 		this.meshes = {};
 		this.textures = {};
 		this.#loaded = 0;
+		this.onLoaded = callback;
 	}
 
 	getMesh(name) {
@@ -85,33 +86,31 @@ class ResourceManager {
 
 	#checkLoad() {
 		ChessGui.updateProgressBar(this.#loaded / this.#RESOURCES.length);
-		if (this.#loaded === this.#RESOURCES.length) {
-			setTimeout(window.onLoaded, 0.1);
-			/* compatibility with old code */
-			// window.geometries = geometries;
-			// window.textures = textures;
-		}
+		// if (this.#loaded === this.#RESOURCES.length) {
+		// 	setTimeout(this.onLoaded, 0.1);
+		// 	/* compatibility with old code */
+		// 	// window.geometries = geometries;
+		// 	// window.textures = textures;
+		// }
 	}
 
 	loadResources = async () => {
-		this.#RESOURCES.forEach((url) => {
+		for (const url of this.#RESOURCES) {
 			switch (url.split('.').pop()) {
 				case 'glb':
 					const meshName = url.split('/').pop().replace('.glb', '');
-					this.#loadGLB(meshName, url);
+					await this.#loadGLB(meshName, url);
 					break;
 				case 'jpg':
 					const textureName = url.split('/').pop();
-					this.#loadTexture(textureName, url);
+					await this.#loadTexture(textureName, url);
 					break;
 				default:
 					throw new Error('Invalid resource type: ' + url);
 			}
-		});
-		return {
-			meshes: this.meshes,
-			textures: this.textures
 		};
+		// Return the ResourceManager instance
+		return this;
 	}
 
 }

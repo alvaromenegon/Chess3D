@@ -1,3 +1,5 @@
+
+
 function onChangeDifficulty(event) {
     const level = parseInt(event.target.value || 0, 10);
     if (levels[level - 1] !== undefined) {
@@ -36,5 +38,5 @@ function onChangeStartPlayer(color) {
         camera.position.x = 0;
         camera.position.z = -100; // camera on black side
     }
-    redrawBoard();
+    window.chess.redrawBoard();
 }

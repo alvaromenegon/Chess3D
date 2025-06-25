@@ -10,9 +10,10 @@ import Move from './core/Move.js';
 import { cloneAndTileTexture, cloneTexture, tileTextureAndRepeat } from './utils/three-extend.js';
 import ChessFactory from './rendering/factory.js';
 import { ResourceManager } from './core/loading.js';
-import { WIREFRAME, SHADOW, BLACK, WHITE, FEEDBACK, DEBUG, BOARD_SIZE, PIECE_SIZE, FLOOR_SIZE, COLS, ROWS, LOADING_BAR_SCALE } from './core/constants.js';
-import { load, newGame, saveGame, undo } from './core/game.js';
-import ChessGui from './gui/gui.module.js';
+import { WIREFRAME, SHADOW, BLACK, WHITE, FEEDBACK, DEBUG, BOARD_SIZE, PIECE_SIZE, FLOOR_SIZE, COLS, ROWS, LOADING_BAR_SCALE, LEVELS } from './core/constants.js';
+import { load, saveGame } from './core/game.js';
+import ChessGui from './gui/gui.js';
+import Chess from './core/chess.js';
 /*
 * Carregar os módulos do THREE.js
 * e armazenas como objetos de window
@@ -28,26 +29,17 @@ window.$ = $;
 /* Mover algumas das funções em closure para módulos JS */
 /* E mover como funções globais para compatibilidade */
 const resourceManager = new ResourceManager();
-const chessFactory = new ChessFactory(resourceManager);
+// const chessFactory = new ChessFactory(resourceManager);
 window.resourceManager = resourceManager;
 window.pgnUtils = pgnUtils;
 window.cloneAndTileTexture = cloneAndTileTexture;
 window.tileTextureAndRepeat = tileTextureAndRepeat;
 window.cloneTexture = cloneTexture;
 
-window.createChessBoard = chessFactory.createChessBoard;
-window.createFloor = chessFactory.createFloor;
-window.getSelectedMaterial = chessFactory.getSelectedMaterial;
-window.getValidCellMaterial = chessFactory.getValidCellMaterial;
-window.createPiece = chessFactory.createPiece;
-
 // Funções de jogo
-window.undo = undo;
-window.undoMove = undo;
 window.loadGame = load;
 window.saveGame = saveGame;
-window.showNewGameOptions = () => $("#btn-newGame").trigger("click");
-window.newGame = newGame;
+
 
 // GUI
 window.displayPlayerTurn = ChessGui.displayPlayerTurn;
@@ -64,6 +56,8 @@ window.Piece = Piece;
 window.Cell = Cell;
 window.Move = Move;
 
+window.Chess = Chess;
+
 /* Variáveis globais */
 window.WIREFRAME = WIREFRAME;
 window.SHADOW = SHADOW;
@@ -77,6 +71,7 @@ window.FLOOR_SIZE = FLOOR_SIZE;
 window.COLS = COLS;
 window.ROWS = ROWS;
 window.LOADING_BAR_SCALE = LOADING_BAR_SCALE;
+window.levels = LEVELS;
 
 // Função para carregar scripts de forma síncrona
 // Isso é necessário para garantir que os scripts sejam carregados na ordem correta
@@ -88,19 +83,28 @@ function loadScripts(path) {
     document.head.appendChild(script);
 }
 
-window.onload = () => { 
-    window.resourceManager.loadResources().then(() => {
-        console.log('Recursos carregados');
+window.onload = async () =>  {
+    try{
+        await resourceManager.loadResources();
+        const factory = new ChessFactory(resourceManager);
+        const chess = new Chess(factory,pgnUtils);
+        chess.start();
         $('#loading').remove();
-    }).catch((error) => {
+        window.chess = chess; // Armazenar a instância de Chess globalmente
+        window.newGame = chess.newGame;
+        window.undoMove = chess.undoMove;
+        window.g_allMoves = chess.g_allMoves;
+    } catch (error) {
         alert('Erro ao carregar recursos. Verifique o console para mais detalhes.');
         console.error('Erro ao carregar recursos:', error);
-    });
+    }
 }
 // carregar o restante dos scripts
 
-loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
+// Carregar as funções e variáveis globais do GarboChess
+// A IA em sim será chamada por um Worker
+loadScripts('./src/AI/garbochess.js');
 // loadScripts('./src/gui/gui.js');
-loadScripts('./src/core/chess.js');
+// loadScripts('./src/core/chess.js');
 
 export { resourceManager };

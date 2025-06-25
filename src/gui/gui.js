@@ -45,7 +45,7 @@ class ChessGui{
 	}
 
     static clearPGN() {
-		$("#pgn").val("");
+		$("#moveList").val("");
 		window.pgnUtils.g_pgn = [];
 	}
 
@@ -119,7 +119,7 @@ class ChessGui{
 		}
 	}
 
-    static displayCheck() {
+    static displayCheck(validMoves) {
 		const $info = $("#info");
 		if (validMoves.length === 0) {
 			// no valid moves means checkmate or stalemate

@@ -1,5 +1,6 @@
-import ChessGui from "../gui/gui.module";
+import ChessGui from "../gui/gui.js";
 import Piece from "../core/Piece.js";
+import Cell from "../core/Cell.js";
 
 class PgnUtils {
     pgn = '';
@@ -129,7 +130,7 @@ class PgnUtils {
             }
 
             if (formatedMove) {
-                UIPlayMove(formatedMove, false);
+                window.chess.UIPlayMove(formatedMove, false);
             } else {
                 console.log(move);
                 throw "Invalid PGN";
@@ -146,12 +147,12 @@ class PgnUtils {
             camera.position.z = -100;
         }
 
-        EnsureAnalysisStopped();
-        if (InitializeBackgroundEngine()) {
-            g_backgroundEngine.postMessage("position " + GetFen());
+        window.chess.EnsureAnalysisStopped();
+        if (window.chess.InitializeBackgroundEngine()) {
+            window.chess.g_backgroundEngine.postMessage("position " + GetFen());
         }
 
-        redrawBoard();
+        window.chess.redrawBoard();
 
     }
 
@@ -284,3 +285,4 @@ export const pgnUtils = new PgnUtils();
 export const parsePGN = (pgn) => {
     return PgnUtils.parsePGN(pgn);
 }
+export default PgnUtils;
