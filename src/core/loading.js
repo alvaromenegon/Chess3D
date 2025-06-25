@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { updateBar } from '../gui/gui.module';
+import ChessGui from '../gui/gui.module';
 
 class ResourceManager {
 	/* int */ #loaded;
@@ -84,7 +84,7 @@ class ResourceManager {
 	}
 
 	#checkLoad() {
-		updateBar(this.#loaded / this.#RESOURCES.length);
+		ChessGui.updateProgressBar(this.#loaded / this.#RESOURCES.length);
 		if (this.#loaded === this.#RESOURCES.length) {
 			setTimeout(window.onLoaded, 0.1);
 			/* compatibility with old code */

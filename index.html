@@ -6,6 +6,8 @@
   <link href="static/css/styles.css" rel="stylesheet" type="text/css">
   <!-- Módulo Principal - adaptação ao THREE atualizado via NPM -->
   <script type="module" src="./src/main.js"></script>
+  <script type="text/javascript" src="./src/handlers/changeHandlers.js"></script>
+  <script type="text/javascript" src="./src/handlers/clickHandlers.js"></script>
 </head>
 
 <body id="container">
@@ -19,9 +21,12 @@
   <div id="game-over-overlay" class="hidden">
     <h1 id="gameOverMessage" class="message">Checkmate</h1>
     <div class="buttons">
-      <button class="btn" id="newGame">New Game</button>
-      <button class="btn" id="undoMove">Undo Move</button>
+      <button class="btn" id="newGame" onclick="openNewGameDialog(event)">New Game</button>
+      <button class="btn" id="undoMove" onclick="window.undoMove()">Undo Move</button>
     </div>
+  </div>
+  <div class="hidden" id="info">
+    Check
   </div>
 
   <div id="newGameDialog" class="chess-menu hidden">
@@ -29,20 +34,20 @@
     <div class="gui-body">
       <h2 class="text-center">New Game</h2>
       <label for="startColorSelect">Select Color:</label>
-      <input type="radio" id="white" name="colorRadio" value="1" checked>
+      <input type="radio" id="white" name="colorRadio" value="1" onchange="onChangeStartPlayer(1)" checked>
       <label for="white">White</label>
 
-      <input type="radio" id="black" name="colorRadio" value="0">
+      <input type="radio" id="black" name="colorRadio" value="0" onchange="onChangeStartPlayer(0)">
       <label for="black">Black</label>
 
       <div>
         <label for="difficultySelect">Difficulty: <span id='difficulty'>1</span></label>
-        <input type="range" id="difficultySelect" min="1" max="10" step="1" value="0">
+        <input type="range" id="difficultySelect" min="1" max="10" step="1" value="0" onchange="onChangeDifficulty(event)">
       </div>
       <div class="column-center">
-        <button class="btn" id="startGameButton">Start Game</button>
-        <button class="btn" id="loadGameButton">Load Game</button>
-        <button class="btn" id="cancelNewGameButton">Cancel</button>
+        <button class="btn" id="startGameButton" onclick="onStartNewGameClick(event)">Start Game</button>
+        <button class="btn" id="loadGameButton" onclick="onLoadGameClick()">Load Game</button>
+        <button class="btn" id="cancelNewGameButton" onclick="onCancelClick()">Cancel</button>
       </div>
     </div>
   </div>
@@ -58,13 +63,13 @@
         </svg></button>
     </div>
     <div class="gui-body">
-      <button class="btn" id="btn-newGame">New Game</button>
-      <button class="btn" id="btn-loadGame">Load Game</button>
-      <input type="file" id="uploadFile" class="hidden" accept=".pgn">
-      <button class="btn" id="btn-saveGame">Save Game</button>
+      <button class="btn" id="btn-newGame" onclick="openNewGameDialog(event)">New Game</button>
+      <button class="btn" id="btn-loadGame" onclick="onLoadGameClick()">Load Game</button>
+      <input type="file" id="uploadFile" class="hidden" accept=".pgn" onchange="window.loadGame(event)">
+      <button class="btn" id="btn-saveGame" onclick="window.saveGame()">Save Game</button>
     </div>
   </div>
-  <button id="openMenu" class="btn hidden">
+  <button id="openMenu" class="btn hidden" onclick="window.openMenu()">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill"
       viewBox="0 0 16 16">
       <path
@@ -75,7 +80,7 @@
     <p>Turn: <span id="turn"></span></p>
     <p>Difficulty: <span id="difficultyLevel"></span></p>
     <label for="promotionSelect">Promotion:</label>
-    <select id="promotionSelect">
+    <select id="promotionSelect" onchange="onChangePromo(this)">
       <option value="queen">Queen</option>
       <option value="rook">Rook</option>
       <option value="bishop">Bishop</option>
@@ -86,7 +91,7 @@
     <textarea id="moveList" readonly>
 
   </textarea>
-    <button class="btn" id="btn-undo">Undo Move</button>
+    <button class="btn" id="btn-undo" onclick="window.undoMove()">Undo Move</button>
   </div>
 </body>
 

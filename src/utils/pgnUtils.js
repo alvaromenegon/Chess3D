@@ -1,3 +1,6 @@
+import ChessGui from "../gui/gui.module";
+import Piece from "../core/Piece.js";
+
 class PgnUtils {
     pgn = '';
     fen = null;
@@ -5,17 +8,15 @@ class PgnUtils {
     // list of moves in pgn format
     g_pgn = [];
 
-    constructor(onUpdatePGN) {
+    constructor() {
         this.pgn = '';
         this.fen = null;
         this.moves = [];
         this.g_pgn = [];
-        this.onUpdatePGN = onUpdatePGN || function () { };
+        this.onUpdatePGN = ChessGui.updatePGN;
     }
 
-    setOnUpdatePGN(callback) {
-        this.onUpdatePGN = callback;
-    }
+    //TODO: add the game difficulty and player color to the PGN
 
     loadPGN(pgn) {
         this.pgn = pgn;
@@ -93,7 +94,6 @@ class PgnUtils {
             // here we should have a list of starting square
             // only one should make a valid move 
             // paired with the provided destination
-            console.log('move to:', move.to);
             var end = Cell.fromPosition(move.to);
             var endSquare = MakeSquare(end.y, end.x);
 

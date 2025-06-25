@@ -2,19 +2,17 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import $ from 'jquery';
 import { pgnUtils } from './utils/pgnUtils.js';
 import Piece from './core/Piece.js';
 import Cell from './core/Cell.js';
 import Move from './core/Move.js';
 import { cloneAndTileTexture, cloneTexture, tileTextureAndRepeat } from './utils/three-extend.js';
-// import { createChessBoard, createFloor, createSelectedMaterial, createValidCellMaterial,initCellFactory,initPieceFactory } from './rendering/factory.js';
 import ChessFactory from './rendering/factory.js';
 import { ResourceManager } from './core/loading.js';
 import { WIREFRAME, SHADOW, BLACK, WHITE, FEEDBACK, DEBUG, BOARD_SIZE, PIECE_SIZE, FLOOR_SIZE, COLS, ROWS, LOADING_BAR_SCALE } from './core/constants.js';
+import { load, newGame, saveGame, undo } from './core/game.js';
+import ChessGui from './gui/gui.module.js';
 /*
 * Carregar os módulos do THREE.js
 * e armazenas como objetos de window
@@ -42,6 +40,24 @@ window.createFloor = chessFactory.createFloor;
 window.getSelectedMaterial = chessFactory.getSelectedMaterial;
 window.getValidCellMaterial = chessFactory.getValidCellMaterial;
 window.createPiece = chessFactory.createPiece;
+
+// Funções de jogo
+window.undo = undo;
+window.undoMove = undo;
+window.loadGame = load;
+window.saveGame = saveGame;
+window.showNewGameOptions = () => $("#btn-newGame").trigger("click");
+window.newGame = newGame;
+
+// GUI
+window.displayPlayerTurn = ChessGui.displayPlayerTurn;
+window.clearPGN = ChessGui.clearPGN;
+window.updatePGN = ChessGui.updatePGN;
+window.openMenu = ChessGui.openMenu;
+window.showGameButtons = ChessGui.showGameButtons;
+window.hideCheckmate = ChessGui.hideCheckmate;
+window.displayCheck = ChessGui.displayCheck;
+// window.removeLoader = () => $('#loading').remove();
 
 /* Classes */
 window.Piece = Piece;
@@ -74,7 +90,8 @@ function loadScripts(path) {
 
 window.onload = () => { 
     window.resourceManager.loadResources().then(() => {
-        console.log('Recursos carregados');        
+        console.log('Recursos carregados');
+        $('#loading').remove();
     }).catch((error) => {
         alert('Erro ao carregar recursos. Verifique o console para mais detalhes.');
         console.error('Erro ao carregar recursos:', error);
@@ -83,7 +100,7 @@ window.onload = () => {
 // carregar o restante dos scripts
 
 loadScripts('./src/AI/garbochess.js'); // Carregar o AI do GarboChess
-loadScripts('./src/gui/gui.js');
+// loadScripts('./src/gui/gui.js');
 loadScripts('./src/core/chess.js');
 
 export { resourceManager };

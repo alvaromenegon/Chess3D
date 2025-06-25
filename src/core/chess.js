@@ -162,11 +162,6 @@ var levels = [
 		// for picking
 		projector = new THREE.Raycaster();
 
-		// Menu
-		initGUI();
-		// Check feedback
-		initInfo();
-
 		// picking event
 		document.addEventListener('mousedown', onDocumentMouseDown, false);
 		document.addEventListener('mousemove', onDocumentMouseMove, false);
@@ -582,7 +577,7 @@ var levels = [
 
 	// all resources (meshs and textures) are loaded
 	function onLoaded() {
-		removeLoader();
+		// removeLoader();
 
 		init();
 		if (DEBUG) {
@@ -591,7 +586,7 @@ var levels = [
 			window.camera = camera;
 		}
 		redrawBoard(true);
-		showNewGameOptions();
+		window.showNewGameOptions();
 		animate();
 	}
 
