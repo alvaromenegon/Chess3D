@@ -242,7 +242,7 @@ class Chess {
         }
 
         // if a piece is selected and a cell is picked
-        if (this.selectedPiece !== null && pickedCell !== null) {
+        if (this.selectedPiece !== null && pickedCell !== null && pickedCell?.name !== 'board') {
             var start = Cell.fromIndex(this.selectedPiece.cell);
             var end = Cell.fromPosition(pickedCell.name);
 
@@ -274,7 +274,7 @@ class Chess {
         var pickedPiece = this.pickPiece(raycaster);
         var pickedCell = this.pickCell(raycaster);
 
-        if (this.selectedPiece !== null && pickedCell !== null) {
+        if (this.selectedPiece !== null && pickedCell !== null && pickedCell?.name !== 'board') {
             if (this.playMove(this.selectedPiece, pickedCell)) {
                 // a move is played, we reset everything
                 // any selectedPiece will disappear

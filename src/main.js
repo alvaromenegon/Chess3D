@@ -32,16 +32,6 @@ window.Chess = Chess;
 /* Variáveis globais */
 window.levels = LEVELS;
 
-// Função para carregar scripts de forma síncrona
-// Isso é necessário para garantir que os scripts sejam carregados na ordem correta
-function loadScripts(path) {
-    const script = document.createElement('script');
-    script.src = path;
-    script.async = false;
-    script.deferrer = true;
-    document.head.appendChild(script);
-}
-
 window.onload = async () =>  {
     try{
         await resourceManager.loadResources();
@@ -58,10 +48,5 @@ window.onload = async () =>  {
         console.error('Erro ao carregar recursos:', error);
     }
 }
-// carregar o restante dos scripts
-
-// Carregar as funções e variáveis globais do GarboChess
-// A IA em sim será chamada por um Worker
-loadScripts('./src/AI/garbochess.js');
 
 export { resourceManager };
