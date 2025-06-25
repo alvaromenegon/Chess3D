@@ -1,6 +1,6 @@
 function openNewGameDialog(event) {
     g_playerWhite = true; // default to white
-    window.hideCheckmate();
+    window.ChessGui.hideCheckmate();
     $("#newGameDialog").removeClass("hidden");
 }
 

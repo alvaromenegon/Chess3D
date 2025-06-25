@@ -1,6 +1,8 @@
 import ChessGui from "../gui/gui.js";
 import Piece from "../core/Piece.js";
 import Cell from "../core/Cell.js";
+import Move from "../core/Move.js";
+import { WHITE, BLACK } from "../core/constants.js";
 
 class PgnUtils {
     pgn = '';

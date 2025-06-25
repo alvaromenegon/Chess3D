@@ -1,8 +1,9 @@
 
 import * as THREE from 'three';
 import Cell from '../core/Cell.js';
-import { cloneAndTileTexture } from '../utils/three-extend.js';
-import { COLS, ROWS, SHADOW, WIREFRAME } from '../core/constants.js';
+import { cloneAndTileTexture } from '../utils/textureUtils.js';
+import { ResourceManager } from '../core/loading.js';
+import { BOARD_SIZE, PIECE_SIZE, WHITE, COLS, ROWS, SHADOW, WIREFRAME } from '../core/constants.js';
 
 /**
  *  Factory class for creating chess-related objects such as chess boards, floors, and materials.

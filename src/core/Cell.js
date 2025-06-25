@@ -1,3 +1,7 @@
+import * as THREE from "three";
+import { BOARD_SIZE, COLS, ROWS } from "./constants.js";
+
+
 const a = "a".charCodeAt(0);
 /**
  * Classe Cell representa uma posição no tabuleiro de xadrez.

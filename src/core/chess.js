@@ -1,8 +1,9 @@
 import * as THREE from "three";
+import $ from "jquery";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Cell from "./Cell";
 import ChessFactory from "../rendering/factory";
-import { BOARD_SIZE, COLS, DEBUG, levels, ROWS } from "./constants";
+import { BOARD_SIZE, COLS, DEBUG, levels, SHADOW, BLACK, WHITE, ROWS } from "./constants";
 import PGNUtils from "../utils/pgnUtils";
 import ChessGui from "../gui/gui";
 

@@ -1,5 +1,5 @@
 import $ from 'jquery';
-
+import { WHITE, BLACK } from '../core/constants.js';
 
 class ChessGui{
     constructor() {}
@@ -36,7 +36,7 @@ class ChessGui{
 			.css("z-index", "13")
 			.appendTo($("body"));
 		$("#openMenu").addClass("hidden");
-		$("#closeMenu").removeClass("hidden").on("click", function () {
+		$("#closeMenu").removeClass("hidden").on("click", () => {
 			$("#gui").addClass("hidden");
 			pause.remove();
 			$("#openMenu").removeClass("hidden");

@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 /* 
  * few extension or modification to some three.js functionnality 
  * often to avoid some repetitive tasks
