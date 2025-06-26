@@ -1,4 +1,5 @@
 import ChessGui from "../gui/gui";
+import pgnUtils from "../utils/pgnUtils";
 
 function load(evt) {    
     //Retrieve the first (and only!) File from the FileList object

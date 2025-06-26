@@ -3,6 +3,9 @@ import Piece from "../core/Piece.js";
 import Cell from "../core/Cell.js";
 import Move from "../core/Move.js";
 import { WHITE, BLACK } from "../core/constants.js";
+import chess from "../core/chess.js";
+
+let instance = null;
 
 class PgnUtils {
     pgn = '';
@@ -12,11 +15,27 @@ class PgnUtils {
     g_pgn = [];
 
     constructor() {
+        if (instance) {
+            console.warn("PgnUtils constructor called, but an instance already exists. Returning existing instance.");
+            return instance; // Return existing instance if it exists
+        }
         this.pgn = '';
         this.fen = null;
         this.moves = [];
         this.g_pgn = [];
-        this.onUpdatePGN = ChessGui.updatePGN;
+    }
+
+    /** factory method to create a singleton instance
+     * @returns {PgnUtils} Singleton instance of PgnUtils
+     * @description This method ensures that only one instance of PgnUtils is created.
+     * If an instance already exists, it returns the existing instance.*/
+    static getInstance() {
+        if (!instance) {
+            console.log("Creating new PgnUtils instance");
+            instance = new PgnUtils();            
+        }
+        console.log("Returning existing PgnUtils instance");
+        return instance;
     }
 
     //TODO: add the game difficulty and player color to the PGN
@@ -132,7 +151,7 @@ class PgnUtils {
             }
 
             if (formatedMove) {
-                window.chess.UIPlayMove(formatedMove, false);
+                chess.UIPlayMove(formatedMove, false);
             } else {
                 console.log(move);
                 throw "Invalid PGN";
@@ -149,19 +168,19 @@ class PgnUtils {
             camera.position.z = -100;
         }
 
-        window.chess.EnsureAnalysisStopped();
-        if (window.chess.InitializeBackgroundEngine()) {
-            window.chess.g_backgroundEngine.postMessage("position " + GetFen());
+        chess.EnsureAnalysisStopped();
+        if (chess.InitializeBackgroundEngine()) {
+            chess.g_backgroundEngine.postMessage("position " + GetFen());
         }
 
-        window.chess.redrawBoard();
+        chess.redrawBoard();
 
     }
 
     addToPGN(move) {
         this.g_pgn.push(GetMoveSAN(move));
         this.pgn = this.getPGN();
-        this.onUpdatePGN(this.pgn);
+        ChessGui.updatePGN(this.pgn);
     }
 
     getPGN() {
@@ -283,8 +302,8 @@ class PgnUtils {
 
 }
 
-export const pgnUtils = new PgnUtils();
+const pgnUtils = PgnUtils.getInstance();
 export const parsePGN = (pgn) => {
     return PgnUtils.parsePGN(pgn);
 }
-export default PgnUtils;
+export default pgnUtils;

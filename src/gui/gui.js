@@ -1,8 +1,13 @@
 import $ from 'jquery';
 import { WHITE, BLACK } from '../core/constants.js';
+import pgnUtils from '../utils/pgnUtils.js';
 
 class ChessGui{
     constructor() {}
+
+	static showLoadingFeedback(message){
+		$("#feedback").text(message);
+	}
 
     static showGameButtons() {
 		ChessGui.displayPlayerTurn(g_playerWhite);
@@ -12,7 +17,7 @@ class ChessGui{
 
     static loadPGN = (pgn) => {
 		ChessGui.clearPGN();
-		window.pgnUtils.loadPGN(pgn);
+		pgnUtils.loadPGN(pgn);
 		// fechar o menu
 		$("#gui").addClass("hidden");
 		$("#openMenu").removeClass("hidden");
@@ -46,7 +51,7 @@ class ChessGui{
 
     static clearPGN() {
 		$("#moveList").val("");
-		window.pgnUtils.g_pgn = [];
+		pgnUtils.g_pgn = [];
 	}
 
 	static updatePGN(pgn) {
@@ -55,7 +60,8 @@ class ChessGui{
 		$moveList.scrollTop($moveList[0].scrollHeight);
 	}
     
-    static updateProgressBar(p) {
+    static updateProgressBar(p,feedback) {
+		ChessGui.showLoadingFeedback(feedback || "...");
         $('#progressbar').val(p * 100);
         $('#progressbar-label').text(Math.round(p * 100) + '%');
     }
@@ -139,3 +145,5 @@ class ChessGui{
 }
 
 export default ChessGui;
+const updatePGN = ChessGui.updatePGN;
+export { updatePGN };

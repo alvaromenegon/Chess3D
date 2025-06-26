@@ -13,7 +13,9 @@ import { BOARD_SIZE, PIECE_SIZE, WHITE, COLS, ROWS, SHADOW, WIREFRAME } from '..
  *  @description This class provides methods to create a chess board, floor, and materials for cells and pieces.
  */
 class ChessFactory {
-    /* List<THREE.MeshPhongMaterial> */#materials
+    /**
+    *  @param {ResourceManager} resourceManager - The ResourceManager instance to manage resources.
+    */
     constructor(resourceManager) {
         this.resourceManager = resourceManager;
     }
@@ -194,12 +196,12 @@ class ChessFactory {
         return cell;
     }
 
-    createPiece(name, color) {
+    createPiece = (name, color) => {
         const size = BOARD_SIZE / COLS * PIECE_SIZE;
         // container for the piece and its reflexion
         var piece = new THREE.Object3D();
-        const normTexture = resourceManager.getTexture('wood_N.jpg');
-        const specTexture = resourceManager.getTexture('wood_S.jpg');
+        const normTexture = this.resourceManager.getTexture('wood_N.jpg');
+        const specTexture = this.resourceManager.getTexture('wood_S.jpg');
 
         // common textures
         const tiling = 4;
@@ -218,7 +220,7 @@ class ChessFactory {
         });
         material.normalScale.set(0.3, 0.3);
 
-        var mesh = resourceManager.getMesh(name).clone();
+        var mesh = this.resourceManager.getMesh(name).clone();
 
         mesh.material = material;
 

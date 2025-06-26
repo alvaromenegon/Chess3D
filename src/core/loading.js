@@ -61,9 +61,11 @@ class ResourceManager {
 				const mesh = gltf.scene.children[0];
 				mesh.name = name;
 				this.setMesh(name, mesh);
-				this.#checkLoad(++this.#loaded);
+				this.#loaded++;
+				this.#checkLoad(`Loading texture: ${name}`);
 				resolve(mesh);
 			}, undefined, (error) => {
+				ChessGui.showLoadingFeedback(`Error loading ${name}. ${error}`);
 				console.error('An error happened while loading', url, error);
 				reject(error);
 			});
@@ -74,9 +76,11 @@ class ResourceManager {
 		return new Promise((resolve, reject) => {
 			new THREE.TextureLoader().load(`static/${url}`, (texture) => {
 				this.setTexture(name, texture);
-				this.#checkLoad(++this.#loaded);
+				this.#loaded++;
+				this.#checkLoad(`Loading texture: ${name}`);
 				resolve(texture);
 			}, undefined, (error) => {
+				ChessGui.showLoadingFeedback(`Error loading ${name}. ${error}`);
 				console.error('An error happened while loading', url, error);
 				reject(error);
 			});
@@ -84,14 +88,8 @@ class ResourceManager {
 
 	}
 
-	#checkLoad() {
-		ChessGui.updateProgressBar(this.#loaded / this.#RESOURCES.length);
-		// if (this.#loaded === this.#RESOURCES.length) {
-		// 	setTimeout(this.onLoaded, 0.1);
-		// 	/* compatibility with old code */
-		// 	// window.geometries = geometries;
-		// 	// window.textures = textures;
-		// }
+	#checkLoad(message) {
+		ChessGui.updateProgressBar(this.#loaded / this.#RESOURCES.length,message);
 	}
 
 	loadResources = async () => {

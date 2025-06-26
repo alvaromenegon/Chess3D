@@ -6,6 +6,10 @@ import ChessFactory from "../rendering/factory";
 import { BOARD_SIZE, COLS, DEBUG, levels, SHADOW, BLACK, WHITE, ROWS } from "./constants";
 import PGNUtils from "../utils/pgnUtils";
 import ChessGui from "../gui/gui";
+import pgnUtils from "../utils/pgnUtils";
+import { ResourceManager } from "./loading";
+
+let instance = null;
 
 // list of valid move after each move
 // used mostly for cell highlighting
@@ -18,16 +22,19 @@ var promotion = moveflagPromoteQueen;
 /**
  * Main chess module.
  * @param {ChessFactory} factory - The instance of chess factory for creating chess pieces and board.
- * @param {PGNUtils} pgnUtils - The utility functions for handling PGN (Portable Game Notation).
  */
 class Chess {
     /**
     * @param {ChessFactory} factory - The instance of chess factory for creating chess pieces and board.
-    * @param {PGNUtils} pgnUtils - The utility functions for handling PGN (Portable Game Notation).
     */
-    constructor(factory, pgnUtils) {
-        this.factory = factory;
-        this.pgnUtils = pgnUtils || window.pgnUtils;
+    constructor() {
+        if (instance) {
+            console.warn("Chess constructor called, but an instance already exists. Returning existing instance.");
+            return instance; // Return existing instance if it exists
+        }
+        this.pgnUtils = null;
+        this.resourceManager = null;
+        this.factory = null;
         this.scene = new THREE.Scene();
         this.renderer = null;
         this.camera = null;
@@ -54,6 +61,37 @@ class Chess {
         // default values for AI level
         this.g_timeout = 1600;
         this.g_maxply = 49;
+    }
+
+    /**     * Factory method to create a singleton instance of Chess.
+     * @returns {Chess} Singleton instance of Chess.
+     * @description This method ensures that only one instance of Chess is created.
+     * */
+    static getInstance() {
+        if (!instance) {
+            console.log("Creating new Chess instance");
+            instance = new Chess();
+        }
+        console.log("Returning existing Chess instance");
+        return instance;
+    }
+
+    init = async () => {
+        this.resourceManager = new ResourceManager();
+        this.factory = new ChessFactory(this.resourceManager);
+        this.pgnUtils = pgnUtils;
+        try {
+            await this.resourceManager.loadResources();
+        } catch (error) {
+            ChessGui.showLoadingFeedback('Failed to load resources. Please check the console for details.'+error);
+            console.error('Error loading resources:', error);
+            return false; // Return false if resources fail to load
+        }
+        this.#startGame();
+
+        /* compatibility with old code */
+        this.#initializeGlobalFunctions();
+        return true; // Return true if initialization is successful
     }
 
     /*
@@ -100,6 +138,12 @@ class Chess {
         }
         // return false for fallback
         return this.g_backgroundEngineValid;
+    }
+
+    #initializeGlobalFunctions = () => {
+        window.newGame = this.newGame;
+        window.undoMove = this.undoMove;
+        window.g_allMoves = this.g_allMoves;
     }
 
     initializeCamera(canvasRatio) {
@@ -194,7 +238,7 @@ class Chess {
      * BASIC SETUP
      * change from init to initGame to avoid confusion
      */
-    initGame = () => {
+    #setup = () => {
         // initialize everything for 3D
 
         // CANVAS PARAMETERS 
@@ -215,15 +259,15 @@ class Chess {
         this.initializeScene(floor, spotlight, whiteLight, blackLight);
 
         // picking event
-        document.addEventListener('mousedown', this.onDocumentMouseDown, false);
-        document.addEventListener('mousemove', this.onDocumentMouseMove, false);
+        document.addEventListener('mousedown', this.#onDocumentMouseDown, false);
+        document.addEventListener('mousemove', this.#onDocumentMouseMove, false);
 
         // avoid stretching
         window.addEventListener('resize', this.onResize, false);
 
     }
 
-    onDocumentMouseMove = (event) => {
+    #onDocumentMouseMove = (event) => {
         var canvas = this.renderer.domElement;
         var raycaster = this.getRay(event);
         var pickedPiece = this.pickPiece(raycaster);
@@ -268,7 +312,7 @@ class Chess {
         }
     }
 
-    onDocumentMouseDown = (event) => {
+    #onDocumentMouseDown = (event) => {
         var raycaster = this.getRay(event);
 
         var pickedPiece = this.pickPiece(raycaster);
@@ -615,18 +659,22 @@ class Chess {
         return this.raycaster;
     }
 
-    start = () => {
-        this.initGame();
+    #startGame = () => {
+        this.#setup();
         if (DEBUG) {
             window.scene = this.scene;
             window.renderer = this.renderer;
             window.camera = this.camera;
         }
         this.redrawBoard(true);
+        $('#loading').remove(); // Remove loading screen
         $("#btn-newGame").trigger("click");
         this.animate();
     }
 
 };
 
-export default Chess;
+export { Chess };
+// Export the Chess class as a singleton instance
+const chess = Chess.getInstance();
+export default chess;
