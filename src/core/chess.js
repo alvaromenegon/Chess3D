@@ -4,10 +4,9 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Cell from "./Cell";
 import ChessFactory from "../rendering/factory";
 import { BOARD_SIZE, COLS, DEBUG, levels, SHADOW, BLACK, WHITE, ROWS } from "./constants";
-import PGNUtils from "../utils/pgnUtils";
 import ChessGui from "../gui/gui";
 import pgnUtils from "../utils/pgnUtils";
-import { ResourceManager } from "./loading";
+import { resourceManager } from "./loading";
 
 let instance = null;
 
@@ -38,6 +37,7 @@ class Chess {
         this.scene = new THREE.Scene();
         this.renderer = null;
         this.camera = null;
+        this.g_playerWhite = true; // default player color
 
         this.cameraControls = null;
         // for picking
@@ -77,7 +77,7 @@ class Chess {
     }
 
     init = async () => {
-        this.resourceManager = new ResourceManager();
+        this.resourceManager = resourceManager;
         this.factory = new ChessFactory(this.resourceManager);
         this.pgnUtils = pgnUtils;
         try {
@@ -236,7 +236,7 @@ class Chess {
 
     /*
      * BASIC SETUP
-     * change from init to initGame to avoid confusion
+     * change from init to setup to avoid confusion
      */
     #setup = () => {
         // initialize everything for 3D
@@ -409,8 +409,8 @@ class Chess {
 
         const isPiecePawn = (piece & 0x7) === piecePawn;
         //não muda nada, só para deixar mais claro
-        const isWhitePlayer = g_playerWhite;
-        const isBlackPlayer = !g_playerWhite;
+        const isWhitePlayer = this.g_playerWhite;
+        const isBlackPlayer = !this.g_playerWhite;
         // verificar se a peça é branca ou preta
         const isWhitePiece = (piece & 0x8) === colorWhite; // colorWhite é 8
 
@@ -506,7 +506,7 @@ class Chess {
         this.pgnUtils.g_pgn.pop();
         ChessGui.updatePGN(this.pgnUtils.getPGN());
 
-        if (g_playerWhite !== Boolean(g_toMove) && this.g_allMoves.length !== 0) {
+        if (this.g_playerWhite !== Boolean(g_toMove) && this.g_allMoves.length !== 0) {
             UnmakeMove(this.g_allMoves[this.g_allMoves.length - 1]);
             this.g_allMoves.pop();
         }
@@ -522,7 +522,6 @@ class Chess {
             g_timeout = levels[level].timeout;
             g_maxply = levels[level].maxply;
         }
-
         this.EnsureAnalysisStopped();
         ResetGame();
         if (this.InitializeBackgroundEngine()) {
@@ -530,11 +529,10 @@ class Chess {
         }
 
         this.g_allMoves = [];
-
         this.redrawBoard(true);
         // removeStandbyAnimation();
 
-        if (g_playerWhite) {
+        if (this.g_playerWhite) {
             this.camera.position.x = 0;
             this.camera.position.z = 100; // camera on white side
         } else {
@@ -545,14 +543,22 @@ class Chess {
         ChessGui.showGameButtons();
     }
 
-    redrawBoard = (isNewGame = false) => {
+    redrawBoard = (isNewGame = false) => {   
+        /* g_pieceList is empty sometimes so we need to initialize it */
+        if (isNewGame) {
+            if (g_pieceList.every((piece) => piece === undefined)) {
+                console.warn("Piece list is empty, initializing it.");
+                ChessGui.showLoadingFeedback("[WARN] Piece list is empty, initializing it.");
+                // if the piece list is empty, we initialize it
+                InitializePieceList();
+            }            
+        }     
+        ChessGui.showLoadingFeedback("Generating valid moves");
         validMoves = GenerateValidMoves();
-        /* avoid calling unnecessary functions */
-        if (!isNewGame) {
-            ChessGui.displayCheck(validMoves);
-        }
+
+        if (!isNewGame) ChessGui.displayCheck(validMoves);
         this.clearBoard();
-        this.updateBoard3D();
+        this.updateBoard3D();   
         this.fillBoard();
 
     }
@@ -606,8 +612,8 @@ class Chess {
 
                 if (intersect.length > 0) {
                     hit = intersect[0];
-                    if ((g_playerWhite && hit.object.parent.color === WHITE) ||
-                        (!g_playerWhite && hit.object.parent.color === BLACK)) {
+                    if ((this.g_playerWhite && hit.object.parent.color === WHITE) ||
+                        (!this.g_playerWhite && hit.object.parent.color === BLACK)) {
 
                         // only pick the right color
                         hitList.push(hit);

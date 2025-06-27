@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import ChessGui from '../gui/gui';
 
+let instance = null;
+
 class ResourceManager {
 	/* int */ #loaded;
 	/* List<String> */ #RESOURCES = [
@@ -29,10 +31,21 @@ class ResourceManager {
 		'texture/fakeShadow.jpg'
 	];
 	constructor(callback) {
+		if (instance) {
+			console.warn('ResourceManager constructor called multiple times. Returning existing instance.');
+			return instance;
+		}
 		this.meshes = {};
 		this.textures = {};
 		this.#loaded = 0;
 		this.onLoaded = callback;
+	}
+
+	static getInstance(callback) {
+		if (!instance) {
+			instance = new ResourceManager(callback);
+		}
+		return instance;
 	}
 
 	getMesh(name) {
@@ -72,7 +85,7 @@ class ResourceManager {
 		});
 	}
 
-	#loadTexture(name, url) {
+	#loadTexture(name, url) {		
 		return new Promise((resolve, reject) => {
 			new THREE.TextureLoader().load(`static/${url}`, (texture) => {
 				this.setTexture(name, texture);
@@ -94,7 +107,7 @@ class ResourceManager {
 
 	loadResources = async () => {
 		for (const url of this.#RESOURCES) {
-			switch (url.split('.').pop()) {
+				switch (url.split('.').pop()) {
 				case 'glb':
 					const meshName = url.split('/').pop().replace('.glb', '');
 					await this.#loadGLB(meshName, url);
@@ -113,7 +126,8 @@ class ResourceManager {
 
 }
 
-export { ResourceManager };
+const resourceManager = ResourceManager.getInstance();	
+export { ResourceManager, resourceManager };
 // function initGlow() {
 // 	// create and set the green glow in the background
 // 	var size = window.innerWidth * LOADING_BAR_SCALE * 1.8;

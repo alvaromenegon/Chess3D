@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { WHITE, BLACK } from '../core/constants.js';
 import pgnUtils from '../utils/pgnUtils.js';
+import chess from '../core/chess.js';
 
 class ChessGui{
     constructor() {}
@@ -112,7 +113,7 @@ class ChessGui{
 	}
 	
 	static whoIsInCheck() {
-		const playerColor = g_playerWhite ? WHITE : BLACK;
+		const playerColor = chess.g_playerWhite ? WHITE : BLACK;
 		const turn = g_toMove === 8 ? WHITE : BLACK;
 		if (g_inCheck) {
 			if (turn === playerColor) {				
