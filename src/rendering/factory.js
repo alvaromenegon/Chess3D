@@ -1,7 +1,7 @@
 
 import * as THREE from 'three';
 import Cell from '../core/Cell.js';
-import { cloneAndTileTexture } from '../utils/textureUtils.js';
+import { cloneAndTileTexture, cloneTexture } from '../utils/textureUtils.js';
 import { ResourceManager } from '../core/loading.js';
 import { BOARD_SIZE, PIECE_SIZE, WHITE, COLS, ROWS, SHADOW, WIREFRAME } from '../core/constants.js';
 
@@ -47,7 +47,7 @@ class ChessFactory {
         /// board borders
         const tiling = 6;
 
-        const wood = cloneAndTileTexture(this.resourceManager.getTexture('wood-0.jpg'), tiling);
+        const wood = cloneTexture(this.resourceManager.getTexture('wood-0.jpg'));
         const spec = cloneAndTileTexture(specTexture, tiling);
         const norm = cloneAndTileTexture(normTexture, tiling);
 
@@ -78,8 +78,8 @@ class ChessFactory {
     }
 
     createFloor = (chessboardSize) => {
-        const geometry = new THREE.PlaneGeometry(chessboardSize * 3, chessboardSize * 3);
-        const texture = cloneAndTileTexture(this.resourceManager.getTexture('floor.jpg'), 4);
+        const geometry = new THREE.PlaneGeometry(chessboardSize * 5, chessboardSize * 5);
+        const texture = cloneAndTileTexture(this.resourceManager.getTexture('floor.jpg'), (30 * chessboardSize / 1000));
         const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x004400, side: THREE.DoubleSide });
         const floor = new THREE.Mesh(geometry, material);
         floor.rotation.x += Math.PI / 2;
